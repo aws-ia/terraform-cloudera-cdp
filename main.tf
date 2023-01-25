@@ -1,0 +1,548 @@
+# ------- VPC -------
+# Create the VPC's
+resource "aws_vpc" "cdp_vpc" {
+  cidr_block = var.vpc_cidr
+  tags       = merge(local.env_tags, { Name = local.vpc_name })
+
+  instance_tenancy     = "default"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+}
+
+# ------- AWS Public Network infrastructure -------
+# Internet Gateway
+resource "aws_internet_gateway" "cdp_igw" {
+  vpc_id = aws_vpc.cdp_vpc.id
+  tags   = merge(local.env_tags, { Name = local.igw_name })
+}
+
+# AWS VPC Public Subnets 
+resource "aws_subnet" "cdp_public_subnets" {
+  for_each = { for idx, subnet in local.public_subnets : idx => subnet }
+
+  vpc_id                  = aws_vpc.cdp_vpc.id
+  cidr_block              = each.value.cidr
+  map_public_ip_on_launch = true
+  availability_zone       = each.value.az
+  tags                    = merge(local.env_tags, each.value.tags)
+}
+
+# Public Route Table
+resource "aws_default_route_table" "cdp_public_route_table" {
+  default_route_table_id = aws_vpc.cdp_vpc.default_route_table_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.cdp_igw.id
+  }
+
+  tags = merge(local.env_tags, { Name = local.public_route_table_name })
+
+}
+
+# Associate the Public Route Table with the Public Subnets
+resource "aws_route_table_association" "cdp_public_subnets" {
+
+  for_each = aws_subnet.cdp_public_subnets
+
+  subnet_id      = each.value.id
+  route_table_id = aws_vpc.cdp_vpc.default_route_table_id
+}
+
+# ------- AWS Private Networking infrastructure -------
+
+# AWS VPC Private Subnets
+resource "aws_subnet" "cdp_private_subnets" {
+  for_each = { for idx, subnet in local.private_subnets : idx => subnet }
+
+  vpc_id                  = aws_vpc.cdp_vpc.id
+  cidr_block              = each.value.cidr
+  map_public_ip_on_launch = false
+  availability_zone       = each.value.az
+  tags                    = merge(local.env_tags, each.value.tags)
+}
+
+# Elastic IP for each NAT gateway
+resource "aws_eip" "cdp_nat_gateway_eip" {
+
+  for_each = { for idx, subnet in local.public_subnets : idx => subnet }
+
+  vpc  = true
+  tags = merge(local.env_tags, { Name = format("%s-%s-%02d", local.nat_gateway_name, "eip", index(local.public_subnets, each.value) + 1) })
+}
+
+#  Network Gateways (NAT)
+resource "aws_nat_gateway" "cdp_nat_gateway" {
+
+  count = length(aws_subnet.cdp_public_subnets)
+
+  subnet_id         = aws_subnet.cdp_public_subnets[count.index].id
+  allocation_id     = aws_eip.cdp_nat_gateway_eip[count.index].id
+  connectivity_type = "public"
+
+  tags = merge(local.env_tags, { Name = format("%s-%02d", local.nat_gateway_name, count.index) })
+}
+
+# Private Route Tables
+resource "aws_route_table" "cdp_private_route_table" {
+  for_each = { for idx, subnet in local.private_subnets : idx => subnet }
+
+  vpc_id = aws_vpc.cdp_vpc.id
+
+  tags = merge(local.env_tags, { Name = format("%s-%02d", local.private_route_table_name, index(local.private_subnets, each.value)) })
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    #nat_gateway_id = aws_nat_gateway.cdp_nat_gateway[0].id
+
+    nat_gateway_id = aws_nat_gateway.cdp_nat_gateway[(index(local.private_subnets, each.value) % length(aws_nat_gateway.cdp_nat_gateway))].id
+
+  }
+}
+
+# Associate the Private Route Tables with the Private Subnets
+resource "aws_route_table_association" "cdp_private_subnets" {
+
+  count = length(aws_subnet.cdp_private_subnets)
+
+  subnet_id      = aws_subnet.cdp_private_subnets[count.index].id
+  route_table_id = aws_route_table.cdp_private_route_table[count.index].id
+}
+
+# ------- Security Groups -------
+# Default SG
+resource "aws_security_group" "cdp_default_sg" {
+  vpc_id      = aws_vpc.cdp_vpc.id
+  name        = local.security_group_default_name
+  description = local.security_group_default_name
+
+  tags = merge(local.env_tags, { Name = local.security_group_default_name })
+
+  # Create self reference ingress rule to allow 
+  # communication among resources in the security group.
+  ingress {
+    from_port = 0
+    to_port   = 0
+    description = "Self reference ingress rule"
+    protocol  = "all"
+    self      = true
+  }
+
+  # Dynamic Block to create security group rule from combining the default and extra list of ingress rules
+  dynamic "ingress" {
+    for_each = concat(local.security_group_rules_ingress,local.security_group_rules_extra_ingress)
+
+    content {
+      cidr_blocks = ingress.value.cidr
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+    }
+
+  }
+
+  # Terraform removes the default ALLOW ALL egress. Let's recreate this
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "all"
+  }
+}
+
+# Knox SG
+resource "aws_security_group" "cdp_knox_sg" {
+  vpc_id      = aws_vpc.cdp_vpc.id
+  name        = local.security_group_knox_name
+  description = local.security_group_knox_name
+
+  tags = merge(local.env_tags, { Name = local.security_group_knox_name })
+
+  # Create self reference ingress rule to allow 
+  # communication among resources in the security group.
+  ingress {
+    from_port = 0
+    to_port   = 0
+    description = "Self reference ingress rule"
+    protocol  = "all"
+    self      = true
+  }
+
+  # Dynamic Block to create security group rule from the default and extra list of ingress rules
+  dynamic "ingress" {
+    for_each = concat(local.security_group_rules_ingress,local.security_group_rules_extra_ingress)
+
+    content {
+      cidr_blocks = ingress.value.cidr
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+    }
+
+  }
+
+  # Terraform removes the default ALLOW ALL egress. Let's recreate this
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "all"
+  }
+}
+
+# ------- S3 Buckets -------
+resource "random_id" "bucket_suffix" {
+  count = var.random_id_for_bucket ? 1 : 0
+
+  byte_length = 4
+}
+
+resource "aws_s3_bucket" "cdp_storage_locations" {
+  # Create buckets for the unique list of buckets in data and log storage
+  for_each = toset(concat([local.data_storage.data_storage_bucket],[local.log_storage.log_storage_bucket]))
+
+  bucket = "${each.value}${local.storage_suffix}"
+  tags   = merge(local.env_tags, { Name = "${each.value}${local.storage_suffix}" })
+
+  # Purge storage locations during teardown?
+  force_destroy = true
+}
+
+
+# Separate bucket acl resource definition
+resource "aws_s3_bucket_acl" "cdp_storage_acl" {
+  for_each = aws_s3_bucket.cdp_storage_locations
+
+  bucket = each.value.id
+  acl    = "private"
+}
+
+# ------- AWS Buckets directory structures -------
+# Data Storage Objects
+resource "aws_s3_object" "cdp_data_storage_object" {
+
+  for_each = toset(local.data_storage.data_storage_objects)
+
+  bucket = var.random_id_for_bucket ? "${local.data_storage.data_storage_bucket}-${one(random_id.bucket_suffix).hex}" : local.data_storage.data_storage_bucket
+
+  key          = each.key
+  content_type = "application/x-directory"
+
+  depends_on = [
+    aws_s3_bucket.cdp_storage_locations
+  ]
+}
+
+# Log Storage Objects
+resource "aws_s3_object" "cdp_log_storage_object" {
+
+  for_each = toset(local.log_storage.log_storage_objects)
+
+  bucket = var.random_id_for_bucket ? "${local.log_storage.log_storage_bucket}-${one(random_id.bucket_suffix).hex}" : local.log_storage.log_storage_bucket
+
+  key          = each.key
+  content_type = "application/x-directory"
+
+  depends_on = [
+    aws_s3_bucket.cdp_storage_locations
+  ]
+}
+
+# ------- AWS Cross Account Policy -------
+# The policy here is a dict variable so we'll use the variable
+# directly in the aws_iam_policy resource.
+resource "aws_iam_policy" "cdp_xaccount_policy" {
+  name        = local.xaccount_policy_name
+  description = "CDP Cross Account policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.xaccount_policy_name })
+
+  policy = local.xaccount_account_policy_doc
+}
+
+# ------- CDP IDBroker Assume Role policy -------
+# First create the assume role policy document
+data "aws_iam_policy_document" "cdp_idbroker_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    sid       = "VisualEditor0"
+    actions   = ["sts:AssumeRole"]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+}
+
+# Then create the policy using the document
+resource "aws_iam_policy" "cdp_idbroker_policy" {
+  name        = local.idbroker_policy_name
+  description = "CDP IDBroker Assume Role policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.idbroker_policy_name })
+
+  policy = data.aws_iam_policy_document.cdp_idbroker_policy_doc.json
+}
+
+# ------- CDP Data Access Policies - Log -------
+resource "aws_iam_policy" "cdp_log_data_access_policy" {
+  name        = local.log_data_access_policy_name
+  description = "CDP Log Location Access policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.log_data_access_policy_name })
+
+  policy = local.log_data_access_policy_doc
+
+}
+
+# ------- CDP Data Access Policies - ranger_audit_s3 -------
+resource "aws_iam_policy" "cdp_ranger_audit_s3_data_access_policy" {
+  name        = local.ranger_audit_s3_policy_name
+  description = "CDP Ranger Audit S3 Access policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.ranger_audit_s3_policy_name })
+
+  policy = local.ranger_audit_s3_policy_doc
+}
+
+# ------- CDP Data Access Policies - datalake_admin_s3 -------
+resource "aws_iam_policy" "cdp_datalake_admin_s3_data_access_policy" {
+  name        = local.datalake_admin_s3_policy_name
+  description = "CDP Datalake Admin S3 Access policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.datalake_admin_s3_policy_name })
+
+  policy = local.datalake_admin_s3_policy_doc
+
+}
+
+# ------- CDP Data Access Policies - bucket_access -------
+resource "aws_iam_policy" "cdp_bucket_data_access_policy" {
+  name        = local.bucket_access_policy_name
+  description = "CDP Bucket S3 Access policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.bucket_access_policy_name })
+
+  policy = local.bucket_access_policy_doc
+}
+
+# ------- Cross Account Role -------
+# First create the assume role policy document
+data "aws_iam_policy_document" "cdp_xaccount_role_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${local.xaccount_account_id}:root"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "sts:ExternalId"
+
+      values = [local.xaccount_external_id]
+    }
+  }
+}
+
+# Create the IAM role that uses the above assume_role_policy document
+resource "aws_iam_role" "cdp_xaccount_role" {
+  name        = local.xaccount_role_name
+  description = "CDP Cross Account role for ${var.env_prefix}"
+
+  assume_role_policy = data.aws_iam_policy_document.cdp_xaccount_role_policy_doc.json
+
+  tags = merge(local.env_tags, { Name = local.xaccount_role_name })
+}
+
+# Attach AWS Cross Account Policy to Cross Account Role
+resource "aws_iam_role_policy_attachment" "cdp_xaccount_role_attach" {
+  role       = aws_iam_role.cdp_xaccount_role.name
+  policy_arn = aws_iam_policy.cdp_xaccount_policy.arn
+}
+
+# ------- AWS Service Roles - CDP IDBroker -------
+# First create the Assume role policy document
+data "aws_iam_policy_document" "cdp_idbroker_role_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+# Create the IAM role that uses the above assume_role_policy document
+resource "aws_iam_role" "cdp_idbroker_role" {
+  name        = local.idbroker_role_name
+  description = "CDP IDBroker role for ${var.env_prefix}"
+
+  assume_role_policy = data.aws_iam_policy_document.cdp_idbroker_role_policy_doc.json
+
+  tags = merge(local.env_tags, { Name = local.idbroker_role_name })
+}
+
+# Create an instance profile for the iam_role
+resource "aws_iam_instance_profile" "cdp_idbroker_role_instance_profile" {
+  name = local.idbroker_role_name
+  role = aws_iam_role.cdp_idbroker_role.name
+}
+
+# Attach CDP IDBroker Assume Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_idbroker_role_attach1" {
+  role       = aws_iam_role.cdp_idbroker_role.name
+  policy_arn = aws_iam_policy.cdp_idbroker_policy.arn
+}
+
+# Attach AWS Log Location Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_idbroker_role_attach2" {
+
+  role       = aws_iam_role.cdp_idbroker_role.name
+  policy_arn = aws_iam_policy.cdp_log_data_access_policy.arn
+}
+
+# ------- AWS Service Roles - CDP Log -------
+# First create the Assume role policy document
+data "aws_iam_policy_document" "cdp_log_role_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+# Create the IAM role that uses the above assume_role_policy document
+resource "aws_iam_role" "cdp_log_role" {
+  name        = local.log_role_name
+  description = "CDP Log role for ${var.env_prefix}"
+
+  assume_role_policy = data.aws_iam_policy_document.cdp_log_role_policy_doc.json
+
+  tags = merge(local.env_tags, { Name = local.log_role_name })
+}
+
+# Create an instance profile for the iam_role
+resource "aws_iam_instance_profile" "cdp_log_role_instance_profile" {
+  name = local.log_role_name
+  role = aws_iam_role.cdp_log_role.name
+}
+
+# Attach AWS Log Location Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_log_role_attach1" {
+
+  role       = aws_iam_role.cdp_log_role.name
+  policy_arn = aws_iam_policy.cdp_log_data_access_policy.arn
+}
+
+# Attach AWS Bucket Access Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_log_role_attach2" {
+
+  role       = aws_iam_role.cdp_log_role.name
+  policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
+}
+
+# ------- AWS Data Access Roles - CDP Datalake Admin -------
+# First create the Assume role policy document
+data "aws_iam_policy_document" "cdp_datalake_admin_role_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${local.caller_account_id}:role/${aws_iam_role.cdp_idbroker_role.name}"]
+    }
+  }
+}
+
+# Create the IAM role that uses the above assume_role_policy document
+resource "aws_iam_role" "cdp_datalake_admin_role" {
+  name        = local.datalake_admin_role_name
+  description = "CDP Datalake Admin role for ${var.env_prefix}"
+
+  assume_role_policy = data.aws_iam_policy_document.cdp_datalake_admin_role_policy_doc.json
+
+  tags = merge(local.env_tags, { Name = local.datalake_admin_role_name })
+}
+
+# Create an instance profile for the iam_role
+resource "aws_iam_instance_profile" "cdp_datalake_admin_role_instance_profile" {
+  name = local.datalake_admin_role_name
+  role = aws_iam_role.cdp_datalake_admin_role.name
+}
+
+# Attach AWS Datalake Admin S3 Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_datalake_admin_role_attach1" {
+
+  role       = aws_iam_role.cdp_datalake_admin_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_admin_s3_data_access_policy.arn
+}
+
+# Attach AWS Bucket Access Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_datalake_admin_role_attach2" {
+
+  role       = aws_iam_role.cdp_datalake_admin_role.name
+  policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
+}
+
+# ------- AWS Data Access Roles - CDP Ranger Audit -------
+# First create the Assume role policy document
+data "aws_iam_policy_document" "cdp_ranger_audit_role_policy_doc" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${local.caller_account_id}:role/${aws_iam_role.cdp_idbroker_role.name}"]
+    }
+  }
+}
+
+# Create the IAM role that uses the above assume_role_policy document
+resource "aws_iam_role" "cdp_ranger_audit_role" {
+  name        = local.ranger_audit_role_name
+  description = "CDP Ranger Audit role for ${var.env_prefix}"
+
+  assume_role_policy = data.aws_iam_policy_document.cdp_ranger_audit_role_policy_doc.json
+
+  tags = merge(local.env_tags, { Name = local.ranger_audit_role_name })
+}
+
+# Create an instance profile for the iam_role
+resource "aws_iam_instance_profile" "cdp_ranger_audit_role_instance_profile" {
+  name = local.ranger_audit_role_name
+  role = aws_iam_role.cdp_ranger_audit_role.name
+}
+
+# Attach AWS Ranger Audit S3 Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_ranger_audit_role_attach1" {
+
+  role       = aws_iam_role.cdp_ranger_audit_role.name
+  policy_arn = aws_iam_policy.cdp_ranger_audit_s3_data_access_policy.arn
+}
+
+# Attach AWS Bucket Access Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_ranger_audit_role_attach2" {
+
+  role       = aws_iam_role.cdp_ranger_audit_role.name
+  policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
+}
