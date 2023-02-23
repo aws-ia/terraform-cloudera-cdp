@@ -26,6 +26,8 @@ terraform init
 terraform apply -var-file="<your file name>.tfvars"
 ```
 
+Once the deployment completes, you can create CDP Data Hubs and Data Services from the CDP Management Console (https://cdp.cloudera.com/).
+
 ## Clean up the infrastructure
 
 If you no longer need the infrastructure that’s provisioned by the Terraform module, run the following command to remove the deployment infrastructure and terminate all resources.
@@ -53,6 +55,8 @@ pip install git+https://github.com/cloudera-labs/cdpy@main#egg=cdpy
 # Install the cloudera.cloud Ansible Collection
 ansible-galaxy collection install git+https://github.com/cloudera-labs/cloudera.cloud.git
 
-# Configure cdp with CDP access key ID and private key
+# Configure cdp with CDP API access key ID and private key
 cdp configure
 ```
+
+NOTE - See the [CDP documentation for steps to Generate the API access key](https://docs.cloudera.com/cdp-public-cloud/cloud/cli/topics/mc-cli-generating-an-api-access-key.html) required in the `cdp configure` command above.
