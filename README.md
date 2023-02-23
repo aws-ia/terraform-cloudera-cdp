@@ -40,12 +40,16 @@ terraform destroy -var-file="<your file name>.tfvars"
 
 The module includes the option to discover the cross account Ids and to run the CDP deployment using external tools.
 
-To utilize these options extra requirements are needed - Python 3, Ansible 2.12, the CDP CLI and a number of support Python libraries and Ansible collections.
+To utilize these options extra requirements are needed - Python 3, Ansible 2.12, the CDP CLI, the [jq utility](https://stedolan.github.io/jq/download/) and a number of support Python libraries and Ansible collections.
 
 A summary of the install and configuration steps for these additional requirements is given below.
 We recommend these steps be performed within an Python virtual environment.
 
 ```bash
+# Install jq as per instructions at https://stedolan.github.io/jq/download/
+# Example for MacOS using homebew shown below
+brew install jq
+
 # Install the Ansible core Python package
 pip install ansible-core==2.12.10 jmespath==1.0.1
 
