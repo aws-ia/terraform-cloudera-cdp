@@ -59,6 +59,9 @@ pip install git+https://github.com/cloudera-labs/cdpy@main#egg=cdpy
 # Install the cloudera.cloud Ansible Collection
 ansible-galaxy collection install git+https://github.com/cloudera-labs/cloudera.cloud.git
 
+# Install the community.general Ansible Collection
+ansible-galaxy collection install community.general:==5.5.0
+
 # Configure cdp with CDP API access key ID and private key
 cdp configure
 ```
