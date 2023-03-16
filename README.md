@@ -25,7 +25,7 @@ cd examples/ex<deployment_type>/
 
 3. Create a `terraform.tfvars` file with variable definitions to run the module. Reference the `terraform.tfvars.sample` file in each example folder to create this file.
 
-4. Run the Terraform module for the choosen deployment type:
+4. Run the Terraform module for the chosen deployment type:
 
 ```bash
 terraform init
