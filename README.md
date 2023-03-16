@@ -13,17 +13,23 @@ The [examples](./examples) directory has example AWS Cloud Service Provider depl
 1. Clone this repository using the following commands:
 
 ```bash
-git clone https://github.infra.cloudera.com/jenright/terrform_cdp_pre_reqs.git  
-cd terrform_cdp_pre_reqs
+git clone https://github.com/jimright/terraform-cloudera-cdp.git  
+cd terraform_cdp_pre_reqs
 ```
 
-2. Reference the deployment types in the [examples](./examples) directory to create `<your file name>.tfvars` file with variable definitions.
+2. Choose one of the deployment types in the [examples](./examples) directory and change to this directory.
 
-3.	Run the Terraform module with the `<your file name>.tfvars` vars file:
+```bash
+cd examples/ex<deployment_type>/
+```
+
+3. Create a `terraform.tfvars` file with variable definitions to run the module. Reference the `terraform.tfvars.sample` file in each example folder to create this file.
+
+4. Run the Terraform module for the choosen deployment type:
 
 ```bash
 terraform init
-terraform apply -var-file="<your file name>.tfvars"
+terraform apply
 ```
 
 Once the deployment completes, you can create CDP Data Hubs and Data Services from the CDP Management Console (https://cdp.cloudera.com/).
@@ -33,7 +39,7 @@ Once the deployment completes, you can create CDP Data Hubs and Data Services fr
 If you no longer need the infrastructure that’s provisioned by the Terraform module, run the following command to remove the deployment infrastructure and terminate all resources.
 
 ```bash
-terraform destroy -var-file="<your file name>.tfvars"
+terraform destroy
 ```
 
 ## External dependencies

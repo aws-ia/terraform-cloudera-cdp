@@ -130,7 +130,7 @@ output "aws_security_group_knox_id" {
 }
 
 output "aws_datalake_admin_role_arn" {
-  value = "aws_iam_role.cdp_datalake_admin_role.arn"
+  value = aws_iam_role.cdp_datalake_admin_role.arn
 
   description = "Datalake Admin role ARN"
 }

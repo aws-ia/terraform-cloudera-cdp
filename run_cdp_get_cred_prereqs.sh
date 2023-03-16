@@ -14,10 +14,10 @@
 # Step 1 - Parse the input and get upper and lower case version
 eval "$(jq -r '@sh "infra_type=\(.infra_type)"')"
 
-# Lower case, bash 4+ syntax
-infra_type_lower=${infra_type,,}
-# Upper case, bash 4+ syntax
-infra_type_upper=${infra_type^^}
+# Lower case
+infra_type_lower=$(echo "$infra_type" | tr '[:upper:]' '[:lower:]')
+# Upper case
+infra_type_upper=$(echo "$infra_type" | tr '[:lower:]' '[:upper:]')
 
 # Step 2 - Run the cdpcli command
 export CDP_OUTPUT=$(cdp environments get-credential-prerequisites --cloud-platform ${infra_type_upper} --output json)

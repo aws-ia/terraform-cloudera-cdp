@@ -1,0 +1,21 @@
+# ------- Global settings -------
+region = "eu-west-1"
+env_prefix = "ex1l0"
+
+# **NOTE: Change the value below with pre-existing AWS keypair**
+public_keypair = "<ENTER_VALUE>" 
+
+# ------- CDP Environment Deployment -------
+deploy_cdp = true
+deployment_type = "public"
+lookup_cdp_account_ids = true
+
+# ------- Network Resources -------
+# **NOTE: If required uncomment and change the values below any additional CIDRs to add the the AWS Security Groups**
+#ingress_extra_cidrs_and_ports = {
+#  cidrs = ["<IP_BLOCK_1>/32", "<IP_BLOCK_2>/32"],
+#  ports = [443, 22]
+#}
+
+# ------- Storage Resources -------
+random_id_for_bucket = true
