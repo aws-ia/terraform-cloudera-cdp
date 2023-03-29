@@ -6,59 +6,25 @@ locals {
   })
 
   caller_account_id = data.aws_caller_identity.current.account_id
+
+  # ------- CDP Environment Deployment -------
+  datalake_scale = coalesce(
+    var.datalake_scale,
+    (var.deployment_template == "public" ?
+      "LIGHT_DUTY" : "MEDIUM_DUTY_HA"
+    )
+  )
+
   # ------- Network Resources -------
-  vpc_name = coalesce(var.vpc_name, "${var.env_prefix}-net")
+  vpc_id = (var.create_vpc ?
+  module.aws_cdp_vpc[0].vpc_id : var.cdp_vpc_id)
 
-  igw_name = coalesce(var.igw_name, "${var.env_prefix}-igw")
+  public_subnet_ids = (var.create_vpc ?
+  module.aws_cdp_vpc[0].public_subnets : var.cdp_public_subnet_ids)
 
-  # Calculate number of subnets based on the deployment_type
-  subnets_required = {
-    total   = (var.deployment_type == "public") ? length(data.aws_availability_zones.zones_in_region.names) : 2 * length(data.aws_availability_zones.zones_in_region.names)
-    public  = length(data.aws_availability_zones.zones_in_region.names)
-    private = (var.deployment_type == "public") ? 0 : length(data.aws_availability_zones.zones_in_region.names)
-  }
-
-  # Public Network infrastructure
-  # if not specified via TF var then calculate. 1 per AZ and conditional on local.subnets_required.public
-  public_subnets = coalesce(var.public_subnets,
-    local.subnets_required.public == 0 ?
-    [] :
-    [
-      for idx, az in data.aws_availability_zones.zones_in_region.names :
-      {
-        name = "${var.env_prefix}-sbnt-pub-${format("%02d", idx + 1)}"
-        az   = az
-        cidr = cidrsubnet(var.vpc_cidr, ceil(log(local.subnets_required.total, 2)), idx)
-        tags = {
-          "kubernetes.io/role/elb" = "1",
-          "Name"                   = "${var.env_prefix}-sbnt-pub-${format("%02d", idx + 1)}"
-        }
-      }
-  ])
-
-  public_route_table_name = coalesce(var.public_route_table_name, "${var.env_prefix}-public-rtb")
-
-  # Private Network infrastructure
-  # if not specified via TF var then calculate. 1 per AZ and conditional on local.subnets_required.private
-  private_subnets = coalesce(var.private_subnets,
-    local.subnets_required.private == 0 ?
-    [] :
-    [
-      for idx, az in data.aws_availability_zones.zones_in_region.names :
-      {
-        name = "${var.env_prefix}-sbnt-pvt-${format("%02d", idx + 1)}"
-        az   = az
-        cidr = cidrsubnet(var.vpc_cidr, ceil(log(local.subnets_required.total, 2)), local.subnets_required.public + idx)
-        tags = {
-          "kubernetes.io/role/internal-elb" = "1",
-          "Name"                            = "${var.env_prefix}-sbnt-pvt-${format("%02d", idx + 1)}"
-        }
-      }
-  ])
-
-  private_route_table_name = coalesce(var.private_route_table_name, "${var.env_prefix}-private-rtb")
-
-  nat_gateway_name = coalesce(var.nat_gateway_name, "${var.env_prefix}-ngw")
+  private_subnet_ids = (var.create_vpc ?
+    module.aws_cdp_vpc[0].private_subnets : var.cdp_private_subnet_ids
+  )
 
   # Security Groups
   security_group_default_name = coalesce(var.security_group_default_name, "${var.env_prefix}-default-sg")

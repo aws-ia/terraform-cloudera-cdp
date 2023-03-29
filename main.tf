@@ -1,118 +1,22 @@
 # ------- VPC -------
-# Create the VPC's
-resource "aws_vpc" "cdp_vpc" {
-  cidr_block = var.vpc_cidr
-  tags       = merge(local.env_tags, { Name = local.vpc_name })
+# Create the VPC if required
+module "aws_cdp_vpc" {
 
-  instance_tenancy     = "default"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-}
+  count = var.create_vpc ? 1 : 0
 
-# ------- AWS Public Network infrastructure -------
-# Internet Gateway
-resource "aws_internet_gateway" "cdp_igw" {
-  vpc_id = aws_vpc.cdp_vpc.id
-  tags   = merge(local.env_tags, { Name = local.igw_name })
-}
+  source = "./modules/vpc"
 
-# AWS VPC Public Subnets 
-resource "aws_subnet" "cdp_public_subnets" {
-  for_each = { for idx, subnet in local.public_subnets : idx => subnet }
+  deployment_template = var.deployment_template
+  vpc_cidr            = var.vpc_cidr
+  env_prefix          = var.env_prefix
+  tags                = local.env_tags
 
-  vpc_id                  = aws_vpc.cdp_vpc.id
-  cidr_block              = each.value.cidr
-  map_public_ip_on_launch = true
-  availability_zone       = each.value.az
-  tags                    = merge(local.env_tags, each.value.tags)
-}
-
-# Public Route Table
-resource "aws_default_route_table" "cdp_public_route_table" {
-  default_route_table_id = aws_vpc.cdp_vpc.default_route_table_id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.cdp_igw.id
-  }
-
-  tags = merge(local.env_tags, { Name = local.public_route_table_name })
-
-}
-
-# Associate the Public Route Table with the Public Subnets
-resource "aws_route_table_association" "cdp_public_subnets" {
-
-  for_each = aws_subnet.cdp_public_subnets
-
-  subnet_id      = each.value.id
-  route_table_id = aws_vpc.cdp_vpc.default_route_table_id
-}
-
-# ------- AWS Private Networking infrastructure -------
-
-# AWS VPC Private Subnets
-resource "aws_subnet" "cdp_private_subnets" {
-  for_each = { for idx, subnet in local.private_subnets : idx => subnet }
-
-  vpc_id                  = aws_vpc.cdp_vpc.id
-  cidr_block              = each.value.cidr
-  map_public_ip_on_launch = false
-  availability_zone       = each.value.az
-  tags                    = merge(local.env_tags, each.value.tags)
-}
-
-# Elastic IP for each NAT gateway
-resource "aws_eip" "cdp_nat_gateway_eip" {
-
-  for_each = { for idx, subnet in local.public_subnets : idx => subnet }
-
-  vpc  = true
-  tags = merge(local.env_tags, { Name = format("%s-%s-%02d", local.nat_gateway_name, "eip", index(local.public_subnets, each.value) + 1) })
-}
-
-#  Network Gateways (NAT)
-resource "aws_nat_gateway" "cdp_nat_gateway" {
-
-  count = length(aws_subnet.cdp_public_subnets)
-
-  subnet_id         = aws_subnet.cdp_public_subnets[count.index].id
-  allocation_id     = aws_eip.cdp_nat_gateway_eip[count.index].id
-  connectivity_type = "public"
-
-  tags = merge(local.env_tags, { Name = format("%s-%02d", local.nat_gateway_name, count.index) })
-}
-
-# Private Route Tables
-resource "aws_route_table" "cdp_private_route_table" {
-  for_each = { for idx, subnet in local.private_subnets : idx => subnet }
-
-  vpc_id = aws_vpc.cdp_vpc.id
-
-  tags = merge(local.env_tags, { Name = format("%s-%02d", local.private_route_table_name, index(local.private_subnets, each.value)) })
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    #nat_gateway_id = aws_nat_gateway.cdp_nat_gateway[0].id
-
-    nat_gateway_id = aws_nat_gateway.cdp_nat_gateway[(index(local.private_subnets, each.value) % length(aws_nat_gateway.cdp_nat_gateway))].id
-
-  }
-}
-
-# Associate the Private Route Tables with the Private Subnets
-resource "aws_route_table_association" "cdp_private_subnets" {
-
-  count = length(aws_subnet.cdp_private_subnets)
-
-  subnet_id      = aws_subnet.cdp_private_subnets[count.index].id
-  route_table_id = aws_route_table.cdp_private_route_table[count.index].id
 }
 
 # ------- Security Groups -------
 # Default SG
 resource "aws_security_group" "cdp_default_sg" {
-  vpc_id      = aws_vpc.cdp_vpc.id
+  vpc_id      = local.vpc_id
   name        = local.security_group_default_name
   description = local.security_group_default_name
 
@@ -121,16 +25,16 @@ resource "aws_security_group" "cdp_default_sg" {
   # Create self reference ingress rule to allow 
   # communication among resources in the security group.
   ingress {
-    from_port = 0
-    to_port   = 0
+    from_port   = 0
+    to_port     = 0
     description = "Self reference ingress rule"
-    protocol  = "all"
-    self      = true
+    protocol    = "all"
+    self        = true
   }
 
   # Dynamic Block to create security group rule from combining the default and extra list of ingress rules
   dynamic "ingress" {
-    for_each = concat(local.security_group_rules_ingress,local.security_group_rules_extra_ingress)
+    for_each = concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress)
 
     content {
       cidr_blocks = ingress.value.cidr
@@ -152,7 +56,7 @@ resource "aws_security_group" "cdp_default_sg" {
 
 # Knox SG
 resource "aws_security_group" "cdp_knox_sg" {
-  vpc_id      = aws_vpc.cdp_vpc.id
+  vpc_id      = local.vpc_id
   name        = local.security_group_knox_name
   description = local.security_group_knox_name
 
@@ -161,16 +65,16 @@ resource "aws_security_group" "cdp_knox_sg" {
   # Create self reference ingress rule to allow 
   # communication among resources in the security group.
   ingress {
-    from_port = 0
-    to_port   = 0
+    from_port   = 0
+    to_port     = 0
     description = "Self reference ingress rule"
-    protocol  = "all"
-    self      = true
+    protocol    = "all"
+    self        = true
   }
 
   # Dynamic Block to create security group rule from the default and extra list of ingress rules
   dynamic "ingress" {
-    for_each = concat(local.security_group_rules_ingress,local.security_group_rules_extra_ingress)
+    for_each = concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress)
 
     content {
       cidr_blocks = ingress.value.cidr
@@ -199,7 +103,7 @@ resource "random_id" "bucket_suffix" {
 
 resource "aws_s3_bucket" "cdp_storage_locations" {
   # Create buckets for the unique list of buckets in data and log storage
-  for_each = toset(concat([local.data_storage.data_storage_bucket],[local.log_storage.log_storage_bucket]))
+  for_each = toset(concat([local.data_storage.data_storage_bucket], [local.log_storage.log_storage_bucket]))
 
   bucket = "${each.value}${local.storage_suffix}"
   tags   = merge(local.env_tags, { Name = "${each.value}${local.storage_suffix}" })

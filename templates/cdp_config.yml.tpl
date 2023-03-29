@@ -4,12 +4,18 @@ plat__datalake_name: ${plat__datalake_name}
 plat__xacccount_credential_name: ${plat__xacccount_credential_name}
 plat__cdp_iam_admin_group_name: ${plat__cdp_iam_admin_group_name} 
 plat__cdp_iam_user_group_name: ${plat__cdp_iam_user_group_name} 
+plat__datalake_scale: ${plat__datalake_scale}
 plat__tunnel: ${plat__tunnel}
 plat__endpoint_access_scheme: ${plat__endpoint_access_scheme}
 plat__enable_raz: ${plat__enable_raz}
-plat__env_freeipa: ${plat__env_freeipa} 
+plat__env_multiaz: ${plat__env_multiaz} 
+plat__env_freeipa_instances: ${plat__env_freeipa_instances} 
 plat__workload_analytics: ${plat__workload_analytics}
 plat__tags: ${plat__tags}
+
+# CDP settings
+plat__cdp_profile: ${plat__cdp_profile}
+plat__cdp_region: ${plat__cdp_region}
 
 # CSP settings
 plat__infra_type: ${plat__infra_type} 

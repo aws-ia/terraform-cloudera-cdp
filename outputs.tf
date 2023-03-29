@@ -1,17 +1,17 @@
 # CDP environment & DL settings
-output "env_name" {
+output "cdp_env_name" {
   value = "${var.env_prefix}-cdp-env"
 
   description = "CDP environment name"
 }
 
-output "datalake_name" {
+output "cdp_datalake_name" {
   value = "${var.env_prefix}-aws-dl"
 
   description = "CDP Datalake name"
 }
 
-output "xacccount_credential_name" {
+output "cdp_xacccount_credential_name" {
   value = "${var.env_prefix}-xaccount-cred"
 
   description = "Cross Account credential name"
@@ -30,32 +30,38 @@ output "cdp_iam_user_group_name" {
   description = "CDP IAM user group name"
 }
 
-output "tunnel" {
-  value = (var.deployment_type == "public") ? "False" : "True"
+output "cdp_tunnel_enabled" {
+  value = (var.deployment_template == "public") ? "false" : "true"
 
-  description = "Flag to enable SSH tunnelling for the environment"
+  description = "Flag to enable SSH tunnelling for the CDP environment"
 }
 
-output "endpoint_access_scheme" {
-  value = (var.deployment_type == "semi-private") ? "PUBLIC" : "PRIVATE"
+output "cdp_endpoint_access_scheme" {
+  value = (var.deployment_template == "semi-private") ? "PUBLIC" : "PRIVATE"
 
   description = "The scheme for the workload endpoint gateway. `PUBLIC` creates an external endpoint that can be accessed over the Internet. `PRIVATE` restricts the traffic to be internal to the VPC / Vnet. Relevant in Private Networks."
 }
 
-output "enable_raz" {
-  value = "no"
+output "cdp_enable_raz" {
+  value = var.enable_raz
 
-  description = "Flag to enable Ranger Authorization Service (RAZ)"
+  description = "Flag to enable Ranger Authorization Service (RAZ) for the CDP environment"
 }
 
-output "env_freeipa" {
-  value = "2"
+output "cdp_enable_multiaz" {
+  value = var.multiaz
+
+  description = "Flag to specify if multi-AZ deployment is enabled for the CDP environment"
+}
+
+output "cdp_freeipa_instances" {
+  value = var.freeipa_instances
 
   description = "Number of instances for the FreeIPA service of the environment"
 }
 
-output "workload_analytics" {
-  value = "True"
+output "cdp_workload_analytics" {
+  value = var.workload_analytics
 
   description = "Flag to enable Workload Analytics"
 }
@@ -66,34 +72,47 @@ output "tags" {
   description = "Tags associated with the environment and its resources"
 }
 
+# CDP settings
+output "cdp_profile" {
+  value = var.cdp_profile
+
+  description = "Profile for CDP credentials"
+}
+
+output "cdp_region" {
+  value = var.cdp_region
+
+  description = "CDP Control Plane region"
+}
+
 # CSP settings
 output "infra_type" {
-  value = "aws"
+  value = var.infra_type
 
   description = "Cloud Service Provider type"
 }
 
-output "region" {
-  value = var.region
+output "aws_region" {
+  value = var.aws_region
 
   description = "Cloud provider region of the Environment"
 
 }
 
 output "aws_vpc_id" {
-  value = aws_vpc.cdp_vpc.id
+  value = local.vpc_id
 
   description = "AWS VPC ID"
 }
 
 output "aws_public_subnet_ids" {
-  value = values(aws_subnet.cdp_public_subnets)[*].id
+  value = local.public_subnet_ids
 
   description = "AWS public subnet IDs"
 }
 
 output "aws_private_subnet_ids" {
-  value = values(aws_subnet.cdp_private_subnets)[*].id
+  value = local.private_subnet_ids
 
   description = "AWS private subnet IDs"
 }
@@ -110,9 +129,8 @@ output "aws_log_location" {
   description = "AWS log storage location"
 }
 
-# TODO: Figure out how to best specify keypair
 output "public_key_id" {
-  value = var.public_keypair
+  value = var.aws_key_pair
 
   description = "Keypair name in Cloud Service Provider"
 }

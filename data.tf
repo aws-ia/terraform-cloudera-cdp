@@ -41,6 +41,8 @@ data "external" "cdpcli" {
 
   program = ["bash", "${path.module}/run_cdp_get_cred_prereqs.sh"]
   query = {
-    infra_type = var.infra_type
+    infra_type  = var.infra_type
+    cdp_profile = var.cdp_profile
+    cdp_region  = var.cdp_region
   }
 }

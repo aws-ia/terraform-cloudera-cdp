@@ -1,5 +1,5 @@
 # ------- Global settings -------
-variable "profile" {
+variable "aws_profile" {
   type        = string
   description = "Profile for AWS cloud credentials"
 
@@ -7,7 +7,7 @@ variable "profile" {
   default = "default"
 }
 
-variable "region" {
+variable "aws_region" {
   type        = string
   description = "Region which Cloud resources will be created"
 }
@@ -17,30 +17,11 @@ variable "env_prefix" {
   description = "Shorthand name for the environment. Used in resource descriptions"
 }
 
-variable "public_keypair" {
-  type = string
-
-  description = "Name of the Public SSH key for the CDP environment"
-
-}
-
 # ------- CDP Environment Deployment -------
-variable "deployment_type" {
+variable "deployment_template" {
   type = string
 
-}
-variable "deploy_cdp" {
-  type = bool
-
-  description = "Deploy the CDP environment as part of Terraform"
-
-}
-
-variable "lookup_cdp_account_ids" {
-  type = bool
-
-  description = "Auto lookup CDP Acount and External ID using CDP CLI commands"
-
+  description = "Deployment Pattern to use for Cloud resources and CDP"
 }
 
 # ------- Network Resources -------
@@ -50,10 +31,4 @@ variable "ingress_extra_cidrs_and_ports" {
     ports = list(number)
   })
   description = "List of extra CIDR blocks and ports to include in Security Group Ingress rules"
-}
-
-# ------- Storage Resources -------
-variable "random_id_for_bucket" {
-  type = bool
-
 }

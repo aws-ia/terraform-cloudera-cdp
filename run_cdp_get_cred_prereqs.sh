@@ -11,16 +11,16 @@
 # JSON object for use in the TF pre-reqs module.
 #############################
 
-# Step 1 - Parse the input and get upper and lower case version
-eval "$(jq -r '@sh "infra_type=\(.infra_type)"')"
+# Step 1 - Parse the inputs and get upper and lower case version of infra_type
+eval "$(jq -r '@sh "infra_type=\(.infra_type) cdp_profile=\(.cdp_profile) cdp_region=\(.cdp_region)"')"
 
-# Lower case
+# Lower case, suitable for bash <4
 infra_type_lower=$(echo "$infra_type" | tr '[:upper:]' '[:lower:]')
-# Upper case
+# Upper case, suitable for bash <4
 infra_type_upper=$(echo "$infra_type" | tr '[:lower:]' '[:upper:]')
 
 # Step 2 - Run the cdpcli command
-export CDP_OUTPUT=$(cdp environments get-credential-prerequisites --cloud-platform ${infra_type_upper} --output json)
+export CDP_OUTPUT=$(cdp environments get-credential-prerequisites --cloud-platform ${infra_type_upper} --profile ${cdp_profile} --cdp-region ${cdp_region} --output json)
 
 # Step 3 - Parse required outputs into variables
 accountId=$(echo $CDP_OUTPUT | jq --raw-output '.accountId')

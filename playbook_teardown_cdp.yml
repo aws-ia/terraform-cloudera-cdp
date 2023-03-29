@@ -13,6 +13,8 @@
 
 - name: Remove CDP Resources
   hosts: localhost
+  environment:
+    CDP_PROFILE: "{{ plat__cdp_profile }}"  
   vars:
   tasks:
 

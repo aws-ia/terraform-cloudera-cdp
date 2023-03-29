@@ -1,5 +1,5 @@
 # ------- Global settings -------
-variable "profile" {
+variable "aws_profile" {
   type        = string
   description = "Profile for AWS cloud credentials"
 
@@ -19,7 +19,7 @@ variable "infra_type" {
   }
 }
 
-variable "region" {
+variable "aws_region" {
   type        = string
   description = "Region which Cloud resources will be created"
 
@@ -38,8 +38,7 @@ variable "env_prefix" {
   description = "Shorthand name for the environment. Used in resource descriptions"
 }
 
-# TODO: Figure out how to best specify keypair
-variable "public_keypair" {
+variable "aws_key_pair" {
   type = string
 
   description = "Name of the Public SSH key for the CDP environment"
@@ -47,14 +46,30 @@ variable "public_keypair" {
 }
 
 # ------- CDP Environment Deployment -------
-variable "deployment_type" {
+variable "cdp_profile" {
+  type        = string
+  description = "Profile for CDP credentials"
+
+  # Profile is default unless explicitly specified
+  default = "default"
+}
+
+variable "cdp_region" {
+  type        = string
+  description = "CDP Control Plane Region"
+
+  # Region is us-west-1 unless explicitly specified
+  default = "us-west-1"
+}
+
+variable "deployment_template" {
   type = string
 
   description = "Deployment Pattern to use for Cloud resources and CDP"
 
   validation {
-    condition     = contains(["public", "semi-private", "fully-private"], var.deployment_type)
-    error_message = "Valid values for var: deployment_type are (public, semi-private, fully-private)."
+    condition     = contains(["public", "semi-private", "fully-private"], var.deployment_template)
+    error_message = "Valid values for var: deployment_template are (public, semi-private, fully-private)."
   }
 }
 variable "deploy_cdp" {
@@ -62,7 +77,7 @@ variable "deploy_cdp" {
 
   description = "Deploy the CDP environment as part of Terraform"
 
-  default = false
+  default = true
 }
 
 variable "lookup_cdp_account_ids" {
@@ -70,15 +85,61 @@ variable "lookup_cdp_account_ids" {
 
   description = "Auto lookup CDP Acount and External ID using CDP CLI commands"
 
+  default = true
+}
+
+variable "enable_raz" {
+  type = bool
+
+  description = "Flag to enable Ranger Authorization Service (RAZ)"
+
+  default = true
+}
+
+variable "multiaz" {
+  type = bool
+
+  description = "Flag to specify that the FreeIPA instances will be deployed across multi-availability zones"
+
   default = false
 }
 
-# ------- Network Resources -------
-variable "vpc_name" {
-  type        = string
-  description = "VPC name"
+variable "freeipa_instances" {
+  type = number
+
+  description = "The number of FreeIPA instances to create in the environment"
+
+  default = 2
+}
+
+variable "workload_analytics" {
+  type = bool
+
+  description = "Flag to specify if workload analytics should be enabled for the CDP environment"
+
+  default = true
+}
+
+variable "datalake_scale" {
+  type = string
+
+  description = "The scale of the datalake. Valid values are LIGHT_DUTY, MEDIUM_DUTY_HA."
+
+  # NOTE: Unable to have validation when we want a default behaviour depending on deployment_template
+  # validation {
+  #   condition     = contains(["LIGHT_DUTY", "MEDIUM_DUTY_HA"], var.datalake_scale)
+  #   error_message = "Valid values for var: datalake_scale are (LIGHT_DUTY, MEDIUM_DUTY_HA)."
+  # }
 
   default = null
+}
+# ------- Network Resources -------
+variable "create_vpc" {
+  type = bool
+
+  description = "Flag to specify if the VPC should be created"
+
+  default = true
 }
 
 variable "vpc_cidr" {
@@ -88,59 +149,27 @@ variable "vpc_cidr" {
   default = "10.10.0.0/16"
 }
 
-variable "igw_name" {
+variable "cdp_vpc_id" {
   type        = string
-  description = "Internet Gateway"
+  description = "VPC ID for CDP environment. Required if create_vpc is false."
 
   default = null
 }
 
-# Public Network infrastructure
-variable "public_subnets" {
-  type = list(object({
-    name = string
-    cidr = string
-    az   = string
-    tags = map(string)
-  }))
-
-  description = "List of Public Subnets"
-  default     = null
-}
-
-variable "public_route_table_name" {
-  type        = string
-  description = "Public Route Table Name"
+variable "cdp_public_subnet_ids" {
+  type        = list(any)
+  description = "List of public subnet ids. Required if create_vpc is false."
 
   default = null
 }
 
-# Private Network infrastructure
-variable "private_subnets" {
-  type = list(object({
-    name = string
-    cidr = string
-    az   = string
-    tags = map(string)
-  }))
+variable "cdp_private_subnet_ids" {
+  type        = list(any)
+  description = "List of private subnet ids. Required if create_vpc is false."
 
-  description = "List of Private Subnets"
-  default     = null
+  default = null
 }
 
-variable "private_route_table_name" {
-  type = string
-
-  description = "Private Route Table"
-  default     = null
-}
-
-variable "nat_gateway_name" {
-  type = string
-
-  description = "Nat Gateway"
-  default     = null
-}
 
 # Security Groups
 variable "security_group_default_name" {
@@ -186,7 +215,7 @@ variable "random_id_for_bucket" {
 
   description = "Create a random suffix for the bucket names"
 
-  default = false
+  default = true
 
 }
 
