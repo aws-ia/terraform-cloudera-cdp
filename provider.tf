@@ -9,20 +9,20 @@ terraform {
       version = "2.2.3"
     }
     null = {
-      source = "hashicorp/null"
+      source  = "hashicorp/null"
       version = "3.2.1"
     }
 
     http = {
-      source = "hashicorp/http"
+      source  = "hashicorp/http"
       version = "3.2.1"
     }
     external = {
-      source = "hashicorp/external"
+      source  = "hashicorp/external"
       version = "2.3.1"
     }
     random = {
-      source = "hashicorp/random"
+      source  = "hashicorp/random"
       version = "3.4.3"
     }
   }
