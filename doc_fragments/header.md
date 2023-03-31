@@ -23,8 +23,8 @@ In each directory an example `terraform.tfvars.sample` values file is included t
 1. Clone this repository using the following commands:
 
 ```bash
-git clone https://github.infra.cloudera.com/GOES/terraform_cdp_aws_pre_reqs.git  
-cd terraform_cdp_aws_pre_reqs
+git clone https://github.com/aws-ia/terraform-cloudera-cdp.git  
+cd terraform-cloudera-cdp
 ```
 
 2. Choose one of the deployment types in the [examples](./examples) directory and change to this directory.

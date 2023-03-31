@@ -1,12 +1,5 @@
-data "aws_region" "current" {}
-
 # Find the AWS account details
 data "aws_caller_identity" "current" {}
-
-# Find Availability Zones is AWS region
-data "aws_availability_zones" "zones_in_region" {
-  state = "available"
-}
 
 # HTTP get request to download policy documents
 # ..Cross Account Policy

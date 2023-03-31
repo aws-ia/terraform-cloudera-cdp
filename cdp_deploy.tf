@@ -9,43 +9,43 @@ resource "local_file" "cdp_deployment_template" {
     # CDP environment & DL settings
     plat__env_name                  = "${var.env_prefix}-cdp-env"
     plat__datalake_name             = "${var.env_prefix}-aws-dl"
-    plat__datalake_scale            = "${local.datalake_scale}"
+    plat__datalake_scale            = local.datalake_scale
     plat__xacccount_credential_name = "${var.env_prefix}-xaccount-cred"
     plat__cdp_iam_admin_group_name  = "${var.env_prefix}-cdp-admin-group"
     plat__cdp_iam_user_group_name   = "${var.env_prefix}-cdp-user-group"
     plat__tunnel                    = (var.deployment_template == "public") ? "false" : "true"
     plat__endpoint_access_scheme    = (var.deployment_template == "semi-private") ? "PUBLIC" : "PRIVATE"
-    plat__enable_raz                = "${var.enable_raz}"
-    plat__env_multiaz               = "${var.multiaz}"
-    plat__env_freeipa_instances     = "${var.freeipa_instances}"
-    plat__workload_analytics        = "${var.workload_analytics}"
-    plat__tags                      = "${jsonencode(local.env_tags)}"
+    plat__enable_raz                = var.enable_raz
+    plat__env_multiaz               = var.multiaz
+    plat__env_freeipa_instances     = var.freeipa_instances
+    plat__workload_analytics        = var.workload_analytics
+    plat__tags                      = jsonencode(local.env_tags)
 
     # CDP settings
-    plat__cdp_profile = "${var.cdp_profile}"
-    plat__cdp_region  = "${var.cdp_region}"
+    plat__cdp_profile = var.cdp_profile
+    plat__cdp_region  = var.cdp_region
 
     # CSP settings
-    plat__infra_type = "${var.infra_type}"
-    plat__region     = "${var.aws_region}"
+    plat__infra_type = var.infra_type
+    plat__region     = var.aws_region
 
-    plat__aws_vpc_id             = "${local.vpc_id}"
-    plat__aws_public_subnet_ids  = "${jsonencode(local.public_subnet_ids)}"
-    plat__aws_private_subnet_ids = "${jsonencode(local.private_subnet_ids)}"
+    plat__aws_vpc_id             = local.vpc_id
+    plat__aws_public_subnet_ids  = jsonencode(local.public_subnet_ids)
+    plat__aws_private_subnet_ids = jsonencode(local.private_subnet_ids)
 
     plat__aws_storage_location = "s3a://${local.data_storage.data_storage_bucket}${local.storage_suffix}"
     plat__aws_log_location     = "s3a://${local.log_storage.log_storage_bucket}${local.storage_suffix}"
 
-    plat__public_key_id                 = "${var.aws_key_pair}"
-    plat__aws_security_group_default_id = "${aws_security_group.cdp_default_sg.id}"
-    plat__aws_security_group_knox_id    = "${aws_security_group.cdp_knox_sg.id}"
+    plat__public_key_id                 = var.aws_key_pair
+    plat__aws_security_group_default_id = aws_security_group.cdp_default_sg.id
+    plat__aws_security_group_knox_id    = aws_security_group.cdp_knox_sg.id
 
-    plat__aws_datalake_admin_role_arn = "${aws_iam_role.cdp_datalake_admin_role.arn}"
-    plat__aws_ranger_audit_role_arn   = "${aws_iam_role.cdp_ranger_audit_role.arn}"
-    plat__aws_xaccount_role_arn       = "${aws_iam_role.cdp_xaccount_role.arn}"
+    plat__aws_datalake_admin_role_arn = aws_iam_role.cdp_datalake_admin_role.arn
+    plat__aws_ranger_audit_role_arn   = aws_iam_role.cdp_ranger_audit_role.arn
+    plat__aws_xaccount_role_arn       = aws_iam_role.cdp_xaccount_role.arn
 
-    plat__aws_log_instance_profile_arn      = "${aws_iam_instance_profile.cdp_log_role_instance_profile.arn}"
-    plat__aws_idbroker_instance_profile_arn = "${aws_iam_instance_profile.cdp_idbroker_role_instance_profile.arn}"
+    plat__aws_log_instance_profile_arn      = aws_iam_instance_profile.cdp_log_role_instance_profile.arn
+    plat__aws_idbroker_instance_profile_arn = aws_iam_instance_profile.cdp_idbroker_role_instance_profile.arn
     }
   )
   filename = "cdp_config.yml"
