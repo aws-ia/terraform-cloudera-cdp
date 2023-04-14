@@ -19,39 +19,40 @@ resource "aws_security_group" "cdp_default_sg" {
   vpc_id      = local.vpc_id
   name        = local.security_group_default_name
   description = local.security_group_default_name
+  tags        = merge(local.env_tags, { Name = local.security_group_default_name })
+}
 
-  tags = merge(local.env_tags, { Name = local.security_group_default_name })
+# Create self reference ingress rule to allow communication within the security group
+resource "aws_security_group_rule" "cdp_default_sg_ingress_self" {
+  security_group_id = aws_security_group.cdp_default_sg.id
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  description       = "Self-reference ingress rule"
+  protocol          = "all"
+  self              = true
+}
 
-  # Create self reference ingress rule to allow 
-  # communication among resources in the security group.
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    description = "Self reference ingress rule"
-    protocol    = "all"
-    self        = true
-  }
+# Create security group rules from combining the default and extra list of ingress rules
+resource "aws_security_group_rule" "cdp_default_sg_ingress" {
+  count = length(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))
 
-  # Dynamic Block to create security group rule from combining the default and extra list of ingress rules
-  dynamic "ingress" {
-    for_each = concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress)
+  security_group_id = aws_security_group.cdp_default_sg.id
+  type              = "ingress"
+  cidr_blocks       = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].cidr
+  from_port         = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].port
+  to_port           = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].port
+  protocol          = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].protocol
+}
 
-    content {
-      cidr_blocks = ingress.value.cidr
-      from_port   = ingress.value.port
-      to_port     = ingress.value.port
-      protocol    = ingress.value.protocol
-    }
-
-  }
-
-  # Terraform removes the default ALLOW ALL egress. Let's recreate this
-  egress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 0
-    to_port     = 0
-    protocol    = "all"
-  }
+# Terraform removes the default ALLOW ALL egress. Let's recreate this
+resource "aws_security_group_rule" "cdp_default_sg_egress" {
+  security_group_id = aws_security_group.cdp_default_sg.id
+  type              = "egress"
+  cidr_blocks       = var.cdp_default_sg_egress_cidrs
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
 }
 
 # Knox SG
@@ -59,39 +60,40 @@ resource "aws_security_group" "cdp_knox_sg" {
   vpc_id      = local.vpc_id
   name        = local.security_group_knox_name
   description = local.security_group_knox_name
+  tags        = merge(local.env_tags, { Name = local.security_group_knox_name })
+}
 
-  tags = merge(local.env_tags, { Name = local.security_group_knox_name })
+# Create self reference ingress rule to allow communication within the security group.
+resource "aws_security_group_rule" "cdp_knox_sg_ingress_self" {
+  security_group_id = aws_security_group.cdp_knox_sg.id
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  description       = "Self-reference ingress rule"
+  protocol          = "all"
+  self              = true
+}
 
-  # Create self reference ingress rule to allow 
-  # communication among resources in the security group.
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    description = "Self reference ingress rule"
-    protocol    = "all"
-    self        = true
-  }
+# Create security group rules from combining the default and extra list of ingress rules
+resource "aws_security_group_rule" "cdp_knox_sg_ingress" {
+  count = length(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))
 
-  # Dynamic Block to create security group rule from the default and extra list of ingress rules
-  dynamic "ingress" {
-    for_each = concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress)
+  security_group_id = aws_security_group.cdp_knox_sg.id
+  type              = "ingress"
+  cidr_blocks       = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].cidr
+  from_port         = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].port
+  to_port           = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].port
+  protocol          = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].protocol
+}
 
-    content {
-      cidr_blocks = ingress.value.cidr
-      from_port   = ingress.value.port
-      to_port     = ingress.value.port
-      protocol    = ingress.value.protocol
-    }
-
-  }
-
-  # Terraform removes the default ALLOW ALL egress. Let's recreate this
-  egress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 0
-    to_port     = 0
-    protocol    = "all"
-  }
+# Terraform removes the default ALLOW ALL egress. Let's recreate this
+resource "aws_security_group_rule" "cdp_knox_sg_egress" {
+  security_group_id = aws_security_group.cdp_knox_sg.id
+  type              = "egress"
+  cidr_blocks       = var.cdp_knox_sg_egress_cidrs
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
 }
 
 # ------- S3 Buckets -------

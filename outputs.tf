@@ -105,6 +105,24 @@ output "aws_vpc_id" {
   description = "AWS VPC ID"
 }
 
+output "aws_default_route_table_id" {
+  value = local.default_route_table_id
+
+  description = "AWS default route table ID"
+}
+
+output "aws_public_route_table_ids" {
+  value = local.public_route_table_ids
+
+  description = "AWS public route table IDs"
+}
+
+output "aws_private_route_table_ids" {
+  value = local.private_route_table_ids
+
+  description = "AWS private route table IDs"
+}
+
 output "aws_public_subnet_ids" {
   value = local.public_subnet_ids
 

@@ -42,7 +42,6 @@ variable "aws_key_pair" {
   type = string
 
   description = "Name of the Public SSH key for the CDP environment"
-
 }
 
 # ------- CDP Environment Deployment -------
@@ -83,7 +82,7 @@ variable "deploy_cdp" {
 variable "lookup_cdp_account_ids" {
   type = bool
 
-  description = "Auto lookup CDP Acount and External ID using CDP CLI commands"
+  description = "Auto lookup CDP Account and External ID using CDP CLI commands"
 
   default = true
 }
@@ -170,7 +169,6 @@ variable "cdp_private_subnet_ids" {
   default = null
 }
 
-
 # Security Groups
 variable "security_group_default_name" {
   type = string
@@ -207,6 +205,22 @@ variable "ingress_extra_cidrs_and_ports" {
     cidrs = [],
     ports = []
   }
+}
+
+variable "cdp_default_sg_egress_cidrs" {
+  type = list(string)
+
+  description = "List of egress CIDR blocks for CDP Default Security Group Egress rule"
+
+  default = ["0.0.0.0/0"]
+}
+
+variable "cdp_knox_sg_egress_cidrs" {
+  type = list(string)
+
+  description = "List of egress CIDR blocks for CDP Knox Security Group Egress rule"
+
+  default = ["0.0.0.0/0"]
 }
 
 # ------- Storage Resources -------
