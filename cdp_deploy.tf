@@ -76,7 +76,6 @@ resource "null_resource" "cdp_deployment" {
     aws_security_group.cdp_knox_sg,
     random_id.bucket_suffix,
     aws_s3_bucket.cdp_storage_locations,
-    aws_s3_bucket_acl.cdp_storage_acl,
     aws_s3_object.cdp_data_storage_object,
     aws_s3_object.cdp_log_storage_object,
     aws_iam_policy.cdp_xaccount_policy,

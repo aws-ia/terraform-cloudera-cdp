@@ -114,15 +114,6 @@ resource "aws_s3_bucket" "cdp_storage_locations" {
   force_destroy = true
 }
 
-
-# Separate bucket acl resource definition
-resource "aws_s3_bucket_acl" "cdp_storage_acl" {
-  for_each = aws_s3_bucket.cdp_storage_locations
-
-  bucket = each.value.id
-  acl    = "private"
-}
-
 # ------- AWS Buckets directory structures -------
 # Data Storage Objects
 resource "aws_s3_object" "cdp_data_storage_object" {
