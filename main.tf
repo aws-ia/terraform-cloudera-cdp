@@ -48,7 +48,7 @@ resource "aws_security_group_rule" "cdp_default_sg_ingress" {
 
 # Terraform removes the default ALLOW ALL egress. Let's recreate this
 resource "aws_security_group_rule" "cdp_default_sg_egress" {
-  
+
   description       = "Egress rule for Default CDP Security Group"
   security_group_id = aws_security_group.cdp_default_sg.id
   type              = "egress"
@@ -92,7 +92,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_ingress" {
 
 # Terraform removes the default ALLOW ALL egress. Let's recreate this
 resource "aws_security_group_rule" "cdp_knox_sg_egress" {
-  
+
   description       = "Egress rule for Knox CDP Security Group"
   security_group_id = aws_security_group.cdp_knox_sg.id
   type              = "egress"

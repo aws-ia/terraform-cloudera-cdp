@@ -1,12 +1,4 @@
 # ------- Global settings -------
-variable "aws_profile" {
-  type        = string
-  description = "Profile for AWS cloud credentials"
-
-  # Profile is default unless explicitly specified
-  default = "default"
-}
-
 variable "infra_type" {
   type        = string
   description = "Cloud Provider to deploy CDP."
