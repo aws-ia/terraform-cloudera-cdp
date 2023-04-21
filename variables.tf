@@ -204,7 +204,7 @@ variable "cdp_default_sg_egress_cidrs" {
 
   description = "List of egress CIDR blocks for CDP Default Security Group Egress rule"
 
-  default = ["35.80.24.128/27"]
+  default = ["0.0.0.0/0"]
 }
 
 variable "cdp_knox_sg_egress_cidrs" {
@@ -212,7 +212,7 @@ variable "cdp_knox_sg_egress_cidrs" {
 
   description = "List of egress CIDR blocks for CDP Knox Security Group Egress rule"
 
-  default = ["35.80.24.128/27"]
+  default = ["0.0.0.0/0"]
 }
 
 # ------- Storage Resources -------
