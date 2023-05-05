@@ -21,7 +21,7 @@ variable "deployment_template" {
   description = "Deployment Pattern to use for Cloud resources and CDP"
 
   validation {
-    condition     = contains(["public", "semi-private", "fully-private"], var.deployment_template)
-    error_message = "Valid values for var: deployment_template are (public, semi-private, fully-private)."
+    condition     = contains(["public", "semi-private", "private"], var.deployment_template)
+    error_message = "Valid values for var: deployment_template are (public, semi-private, private)."
   }
 }

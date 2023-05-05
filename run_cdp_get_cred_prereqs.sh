@@ -34,4 +34,3 @@ jq -n --arg accountId $accountId \
 
 # Step 3-4 - All-in-one alternative
 # echo $CDP_OUTPUT | jq --arg infra_type "$infra_type_lower" '{"infra_type":$infra_type, "accountId":.accountId, "externalId":.[$infra_type].externalId}'
-    

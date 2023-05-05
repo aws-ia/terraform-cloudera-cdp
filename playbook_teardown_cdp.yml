@@ -5,9 +5,8 @@
 # Uses the cloudera.cloud Ansible collection
 # 
 # Tasks performed:
-# * Remove Datalake
+# * Cascading delete to remove Environment, DL, DataHubs and Data Services
 # * Delete user and admin groups
-# * Remove Environment
 # * Delete Cross Account credential
 #############################
 
@@ -18,10 +17,11 @@
   vars:
   tasks:
 
-############# CDP Datalake #############
-    - name: Remove CDP Datalake for AWS
-      cloudera.cloud.datalake:
-        name: "{{ plat__datalake_name }}"
+############# Cascading Delete of CDP Environment #############
+    - name: Delete CDP Environment Deployment on AWS
+      cloudera.cloud.env:
+        name: "{{ plat__env_name }}"
+        cascading: True
         state: absent
 
 ############# CDP Groups #############
@@ -33,12 +33,6 @@
     - name: Remove CDP User group
       cloudera.cloud.iam_group:
         name: "{{ plat__cdp_iam_user_group_name }}"
-        state: absent
-
-############# CDP Environment #############
-    - name: Delete CDP Environment Deployment on AWS
-      cloudera.cloud.env:
-        name: "{{ plat__env_name }}"
         state: absent
 
 ############# CDP Credential #############

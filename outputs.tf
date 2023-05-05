@@ -79,8 +79,8 @@ output "cdp_profile" {
   description = "Profile for CDP credentials"
 }
 
-output "cdp_region" {
-  value = var.cdp_region
+output "cdp_control_plane_region" {
+  value = var.cdp_control_plane_region
 
   description = "CDP Control Plane region"
 }
@@ -145,6 +145,12 @@ output "aws_log_location" {
   value = "s3a://${local.log_storage.log_storage_bucket}${local.storage_suffix}"
 
   description = "AWS log storage location"
+}
+
+output "aws_backup_location" {
+  value = "s3a://${local.backup_storage.backup_storage_bucket}${local.storage_suffix}"
+
+  description = "AWS backup storage location"
 }
 
 output "public_key_id" {

@@ -139,11 +139,22 @@ resource "aws_s3_object" "cdp_data_storage_object" {
 # Log Storage Objects
 resource "aws_s3_object" "cdp_log_storage_object" {
 
-  for_each = toset(local.log_storage.log_storage_objects)
-
   bucket = var.random_id_for_bucket ? "${local.log_storage.log_storage_bucket}-${one(random_id.bucket_suffix).hex}" : local.log_storage.log_storage_bucket
 
-  key          = each.key
+  key          = local.log_storage.log_storage_object
+  content_type = "application/x-directory"
+
+  depends_on = [
+    aws_s3_bucket.cdp_storage_locations
+  ]
+}
+
+# Backup Storage Object
+resource "aws_s3_object" "cdp_backup_storage_object" {
+
+  bucket = var.random_id_for_bucket ? "${local.backup_storage.backup_storage_bucket}-${one(random_id.bucket_suffix).hex}" : local.backup_storage.backup_storage_bucket
+
+  key          = local.backup_storage.backup_storage_object
   content_type = "application/x-directory"
 
   depends_on = [
@@ -226,6 +237,26 @@ resource "aws_iam_policy" "cdp_bucket_data_access_policy" {
   tags = merge(local.env_tags, { Name = local.bucket_access_policy_name })
 
   policy = local.bucket_access_policy_doc
+}
+
+# ------- CDP Data Access Policies - datalake_backup_policy -------
+resource "aws_iam_policy" "cdp_datalake_backup_policy" {
+  name        = local.datalake_backup_policy_name
+  description = "CDP Datalake Backup policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.datalake_backup_policy_name })
+
+  policy = local.datalake_backup_policy_doc
+}
+
+# ------- CDP Data Access Policies - datalake_restore_policy -------
+resource "aws_iam_policy" "cdp_datalake_restore_policy" {
+  name        = local.datalake_restore_policy_name
+  description = "CDP Datalake Restore policy for ${var.env_prefix}"
+
+  tags = merge(local.env_tags, { Name = local.datalake_restore_policy_name })
+
+  policy = local.datalake_restore_policy_doc
 }
 
 # ------- Cross Account Role -------
@@ -358,6 +389,13 @@ resource "aws_iam_role_policy_attachment" "cdp_log_role_attach2" {
   policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
 }
 
+# Attach AWS Datalake Restore Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_log_role_attach3" {
+
+  role       = aws_iam_role.cdp_log_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_restore_policy.arn
+}
+
 # ------- AWS Data Access Roles - CDP Datalake Admin -------
 # First create the Assume role policy document
 data "aws_iam_policy_document" "cdp_datalake_admin_role_policy_doc" {
@@ -404,6 +442,20 @@ resource "aws_iam_role_policy_attachment" "cdp_datalake_admin_role_attach2" {
   policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
 }
 
+# Attach AWS Datalake Backup Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_datalake_admin_role_attach3" {
+
+  role       = aws_iam_role.cdp_datalake_admin_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_backup_policy.arn
+}
+
+# Attach AWS Datalake Restore Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_datalake_admin_role_attach4" {
+
+  role       = aws_iam_role.cdp_datalake_admin_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_restore_policy.arn
+}
+
 # ------- AWS Data Access Roles - CDP Ranger Audit -------
 # First create the Assume role policy document
 data "aws_iam_policy_document" "cdp_ranger_audit_role_policy_doc" {
@@ -448,4 +500,18 @@ resource "aws_iam_role_policy_attachment" "cdp_ranger_audit_role_attach2" {
 
   role       = aws_iam_role.cdp_ranger_audit_role.name
   policy_arn = aws_iam_policy.cdp_bucket_data_access_policy.arn
+}
+
+# Attach AWS Datalake Backup Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_ranger_audit_role_attach3" {
+
+  role       = aws_iam_role.cdp_ranger_audit_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_backup_policy.arn
+}
+
+# Attach AWS Datalake Restore Policy to the Role
+resource "aws_iam_role_policy_attachment" "cdp_ranger_audit_role_attach4" {
+
+  role       = aws_iam_role.cdp_ranger_audit_role.name
+  policy_arn = aws_iam_policy.cdp_datalake_restore_policy.arn
 }

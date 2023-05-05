@@ -25,6 +25,13 @@ variable "env_tags" {
   default = null
 }
 
+variable "agent_source_tag" {
+  type        = map(any)
+  description = "Tag to identify deployment source"
+
+  default = { agent_source = "tf-cdp-module" }
+}
+
 variable "env_prefix" {
   type        = string
   description = "Shorthand name for the environment. Used in resource descriptions"
@@ -45,7 +52,7 @@ variable "cdp_profile" {
   default = "default"
 }
 
-variable "cdp_region" {
+variable "cdp_control_plane_region" {
   type        = string
   description = "CDP Control Plane Region"
 
@@ -59,8 +66,8 @@ variable "deployment_template" {
   description = "Deployment Pattern to use for Cloud resources and CDP"
 
   validation {
-    condition     = contains(["public", "semi-private", "fully-private"], var.deployment_template)
-    error_message = "Valid values for var: deployment_template are (public, semi-private, fully-private)."
+    condition     = contains(["public", "semi-private", "private"], var.deployment_template)
+    error_message = "Valid values for var: deployment_template are (public, semi-private, private)."
   }
 }
 variable "deploy_cdp" {
@@ -74,7 +81,15 @@ variable "deploy_cdp" {
 variable "lookup_cdp_account_ids" {
   type = bool
 
-  description = "Auto lookup CDP Account and External ID using CDP CLI commands"
+  description = "Auto lookup CDP Account and External ID using CDP CLI commands. If false then the xaccount_account_id and xaccount_external_id input variables need to be specified"
+
+  default = true
+}
+
+variable "enable_ccm_tunnel" {
+  type = bool
+
+  description = "Flag to enable Cluster Connectivity Manager tunnel. If false then access from Cloud to CDP Control Plane CIDRs is required from via SG ingress"
 
   default = true
 }
@@ -90,9 +105,9 @@ variable "enable_raz" {
 variable "multiaz" {
   type = bool
 
-  description = "Flag to specify that the FreeIPA instances will be deployed across multi-availability zones"
+  description = "Flag to specify that the FreeIPA and DataLake instances will be deployed across multi-availability zones"
 
-  default = false
+  default = true
 }
 
 variable "freeipa_instances" {
@@ -178,14 +193,6 @@ variable "security_group_knox_name" {
   default = null
 }
 
-variable "cdp_control_plane_cidrs" {
-  type = list(string)
-
-  description = "CIDR for access to CDP Control Plane"
-
-  default = ["52.36.110.208/32", "52.40.165.49/32", "35.166.86.177/32"]
-}
-
 variable "ingress_extra_cidrs_and_ports" {
   type = object({
     cidrs = list(string)
@@ -238,11 +245,22 @@ variable "data_storage" {
 
 variable "log_storage" {
   type = object({
-    log_storage_bucket  = string
-    log_storage_objects = list(string)
+    log_storage_bucket = string
+    log_storage_object = string
   })
 
   description = "Optional log locations for CDP environment. If not provided follow the data_storage variable"
+
+  default = null
+}
+
+variable "backup_storage" {
+  type = object({
+    backup_storage_bucket = string
+    backup_storage_object = string
+  })
+
+  description = "Optional Backup location for CDP environment. If not provided follow the data_storage variable"
 
   default = null
 }
@@ -316,10 +334,40 @@ variable "datalake_admin_s3_policy_doc" {
   default = null
 }
 
+variable "datalake_backup_policy_doc" {
+  type        = string
+  description = "Location of Datalake Backup Data Access Policy"
+
+  default = null
+}
+
+variable "datalake_restore_policy_doc" {
+  type        = string
+  description = "Location of Datalake Restore Data Access Policy"
+
+  default = null
+}
+
 # CDP Data Access Policies - bucket_access
 variable "bucket_access_policy_name" {
   type        = string
   description = "Bucket Access Data Access Policy Name"
+
+  default = null
+}
+
+# CDP Datalake restore Policies - datalake
+variable "datalake_restore_policy_name" {
+  type        = string
+  description = "Datalake restore Data Access Policy Name"
+
+  default = null
+}
+
+# CDP Datalake backup Policies - datalake
+variable "datalake_backup_policy_name" {
+  type        = string
+  description = "Datalake backup Data Access Policy Name"
 
   default = null
 }

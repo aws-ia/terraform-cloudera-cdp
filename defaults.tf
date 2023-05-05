@@ -1,9 +1,10 @@
 locals {
   # ------- Global settings -------
-  env_tags = coalesce(var.env_tags, {
-    env_prefix = var.env_prefix
-    comment    = "Created with Terraform"
-  })
+  env_tags = merge(var.agent_source_tag, (
+    coalesce(var.env_tags,
+      { env_prefix = var.env_prefix }
+    ))
+  )
 
   caller_account_id = data.aws_caller_identity.current.account_id
 
@@ -38,15 +39,9 @@ locals {
   security_group_rules_ingress = [
     {
       # CIDR ingress
-      cidr     = [var.vpc_cidr],
+      cidr     = data.aws_vpc.cdp_vpc.cidr_block_associations[*].cidr_block,
       port     = "0",
       protocol = "all"
-    },
-    # Access to CDP control plane
-    {
-      cidr     = var.cdp_control_plane_cidrs,
-      port     = "9443",
-      protocol = "tcp"
     }
   ]
 
@@ -68,8 +63,13 @@ locals {
   }
 
   log_storage = {
-    log_storage_bucket  = try(var.log_storage.log_storage_bucket, local.data_storage.data_storage_bucket)
-    log_storage_objects = try(var.log_storage.log_storage_objects, ["logs/"])
+    log_storage_bucket = try(var.log_storage.log_storage_bucket, local.data_storage.data_storage_bucket)
+    log_storage_object = try(var.log_storage.log_storage_object, "logs")
+  }
+
+  backup_storage = {
+    backup_storage_bucket = try(var.backup_storage.backup_storage_bucket, local.data_storage.data_storage_bucket)
+    backup_storage_object = try(var.backup_storage.backup_storage_object, "backups")
   }
 
   # ------- Policies -------
@@ -136,6 +136,32 @@ locals {
 
   # ...then assign either input or downloaded policy doc to var used in resource
   bucket_access_policy_doc = coalesce(var.bucket_access_policy_doc, local.bucket_access_policy_doc_processed)
+
+  # CDP Datalake backup Policy
+  datalake_backup_policy_name = coalesce(var.datalake_backup_policy_name, "${var.env_prefix}-datalake-backup-policy")
+
+  # datalake_backup_policy_doc
+  # ...first process placeholders in the downloaded policy doc
+  datalake_backup_policy_doc_processed = replace(
+    replace(
+    data.http.datalake_backup_policy_doc.response_body, "$${ARN_PARTITION}", "aws"),
+  "<BACKUP_LOCATION_BASE>", "${local.backup_storage.backup_storage_bucket}${local.storage_suffix}")
+
+  # ...then assign either input or downloaded policy doc to var used in resource
+  datalake_backup_policy_doc = coalesce(var.datalake_backup_policy_doc, local.datalake_backup_policy_doc_processed)
+
+  # CDP Datalake restore Policy
+  datalake_restore_policy_name = coalesce(var.datalake_restore_policy_name, "${var.env_prefix}-datalake-restore-policy")
+
+  # datalake_restore_policy_doc
+  # ...first process placeholders in the downloaded policy doc
+  datalake_restore_policy_doc_processed = replace(
+    replace(
+    data.http.datalake_restore_policy_doc.response_body, "$${ARN_PARTITION}", "aws"),
+  "<your-backup-bucket>", "${local.backup_storage.backup_storage_bucket}${local.storage_suffix}")
+
+  # ...then assign either input or downloaded policy doc to var used in resource
+  datalake_restore_policy_doc = coalesce(var.datalake_restore_policy_doc, local.datalake_restore_policy_doc_processed)
 
   # ------- Roles -------
   xaccount_role_name = coalesce(var.xaccount_role_name, "${var.env_prefix}-xaccount-role")

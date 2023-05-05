@@ -13,7 +13,7 @@ resource "local_file" "cdp_deployment_template" {
     plat__xacccount_credential_name = "${var.env_prefix}-xaccount-cred"
     plat__cdp_iam_admin_group_name  = "${var.env_prefix}-cdp-admin-group"
     plat__cdp_iam_user_group_name   = "${var.env_prefix}-cdp-user-group"
-    plat__tunnel                    = (var.deployment_template == "public") ? "false" : "true"
+    plat__tunnel                    = var.enable_ccm_tunnel
     plat__endpoint_access_scheme    = (var.deployment_template == "semi-private") ? "PUBLIC" : "PRIVATE"
     plat__enable_raz                = var.enable_raz
     plat__env_multiaz               = var.multiaz
@@ -22,8 +22,8 @@ resource "local_file" "cdp_deployment_template" {
     plat__tags                      = jsonencode(local.env_tags)
 
     # CDP settings
-    plat__cdp_profile = var.cdp_profile
-    plat__cdp_region  = var.cdp_region
+    plat__cdp_profile              = var.cdp_profile
+    plat__cdp_control_plane_region = var.cdp_control_plane_region
 
     # CSP settings
     plat__infra_type = var.infra_type
@@ -32,9 +32,11 @@ resource "local_file" "cdp_deployment_template" {
     plat__aws_vpc_id             = local.vpc_id
     plat__aws_public_subnet_ids  = jsonencode(local.public_subnet_ids)
     plat__aws_private_subnet_ids = jsonencode(local.private_subnet_ids)
+    plat__aws_subnets_for_cdp    = (var.deployment_template == "public") ? jsonencode(concat(local.public_subnet_ids, local.private_subnet_ids)) : jsonencode(local.private_subnet_ids)
 
     plat__aws_storage_location = "s3a://${local.data_storage.data_storage_bucket}${local.storage_suffix}"
-    plat__aws_log_location     = "s3a://${local.log_storage.log_storage_bucket}${local.storage_suffix}"
+    plat__aws_log_location     = "s3a://${local.log_storage.log_storage_bucket}${local.storage_suffix}/${local.log_storage.log_storage_object}"
+    plat__aws_backup_location  = "s3a://${local.backup_storage.backup_storage_bucket}${local.storage_suffix}/${local.backup_storage.backup_storage_object}"
 
     plat__public_key_id                 = var.aws_key_pair
     plat__aws_security_group_default_id = aws_security_group.cdp_default_sg.id
