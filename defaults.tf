@@ -59,7 +59,7 @@ locals {
 
   data_storage = {
     data_storage_bucket  = try(var.data_storage.data_storage_bucket, "${var.env_prefix}-buk")
-    data_storage_objects = try(var.data_storage.data_storage_objects, ["ranger/audit/"])
+    data_storage_object = try(var.data_storage.data_storage_object, "data/")
   }
 
   log_storage = {
