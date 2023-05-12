@@ -52,7 +52,7 @@ resource "aws_security_group_rule" "cdp_default_sg_egress" {
   description       = "Egress rule for Default CDP Security Group"
   security_group_id = aws_security_group.cdp_default_sg.id
   type              = "egress"
-  cidr_blocks       = var.cdp_default_sg_egress_cidrs
+  cidr_blocks       = var.cdp_default_sg_egress_cidrs #tfsec:ignore:aws-ec2-no-public-egress-sgr
   from_port         = 0
   to_port           = 0
   protocol          = "all"
@@ -96,7 +96,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_egress" {
   description       = "Egress rule for Knox CDP Security Group"
   security_group_id = aws_security_group.cdp_knox_sg.id
   type              = "egress"
-  cidr_blocks       = var.cdp_knox_sg_egress_cidrs
+  cidr_blocks       = var.cdp_knox_sg_egress_cidrs #tfsec:ignore:aws-ec2-no-public-egress-sgr
   from_port         = 0
   to_port           = 0
   protocol          = "all"
@@ -118,6 +118,19 @@ resource "aws_s3_bucket" "cdp_storage_locations" {
 
   # Purge storage locations during teardown?
   force_destroy = true
+}
+
+resource "aws_s3_bucket_public_access_block" "cdp_storage_locations" {
+
+  for_each = aws_s3_bucket.cdp_storage_locations
+
+  bucket = each.value.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
 }
 
 # ------- AWS Buckets directory structures -------

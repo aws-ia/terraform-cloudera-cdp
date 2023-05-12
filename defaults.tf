@@ -64,12 +64,12 @@ locals {
 
   log_storage = {
     log_storage_bucket = try(var.log_storage.log_storage_bucket, local.data_storage.data_storage_bucket)
-    log_storage_object = try(var.log_storage.log_storage_object, "logs")
+    log_storage_object = try(var.log_storage.log_storage_object, "logs/")
   }
 
   backup_storage = {
     backup_storage_bucket = try(var.backup_storage.backup_storage_bucket, local.data_storage.data_storage_bucket)
-    backup_storage_object = try(var.backup_storage.backup_storage_object, "backups")
+    backup_storage_object = try(var.backup_storage.backup_storage_object, "backups/")
   }
 
   # ------- Policies -------
