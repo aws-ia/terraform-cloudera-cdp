@@ -35,6 +35,50 @@ Battulga Purevragchaa (AWS), Nidhi Gupta (AWS), Jim Enright (Cloudera), Webster 
 
 ### Architecture
 
+![Deployment Architecture](https://github.com/balazsgaspar/terraform-cloudera-cdp/assets/25385270/7d1964d7-ac45-43e4-89ae-c5403c32d9c9)
+
+The `ex01-minimal-inputs` example implements a semi-private reference architecture of CDP. It deploys customer workloads to private subnets, but exposes services to which data consumers need access over a load balancer with a public IP address. Security groups or allow-lists (IP addresses or CIDR) on Load Balancers must be used to restrict access to these public services only to corporate networks as needed. 
+
+A detailed description of this setup is available under the Cloudera  [Public Endpoint Access Gateway](https://docs.cloudera.com/management-console/cloud/connection-to-private-subnets/topics/mc-endpoint_access_gateway.html)  documentation. This setup provides a balance between security and ease of use. For secure deployments, we recommend  [private setups](https://docs.cloudera.com/cdp-public-cloud/cloud/aws-refarch/topics/cdp-pc-aws-refarch-taxonomy.html#cdp_pc_aws_architecture_taxonomy)  without assigning public IP addresses / providing direct access from the internet to the subnets used by CDP.
+
+The various network flows are depicted in the diagram below:
+
+![Network traffic flows](https://github.com/balazsgaspar/terraform-cloudera-cdp/assets/25385270/4345e5a6-da3c-4588-bf46-633c4c0d5edc)
+
+The reference architecture for semi-private deployments includes following components:
+* A VPC spanning multiple AWS availability zones of the selected region
+* Three private subnets for FreeIPA, Data Lake and Data Hub cluster nodes (traditional EC2 instances)
+* Three public subnets with a public and a private Network Load Balancer
+* An Internet Gateway for egress traffic
+* AWS NAT Gateways (1 per subnet) 
+* Two AWS security groups  [as required by CDP](https://docs.cloudera.com/cdp-public-cloud/cloud/requirements-aws/topics/mc-aws-req-security-groups.html) 
+* A  [cross-account role](https://docs.cloudera.com/cdp-public-cloud/cloud/requirements-aws/topics/mc-aws-req-credential.html)  and its cross-account policy providing access to the AWS Cloud account from your  [CDP Management Console](https://docs.cloudera.com/management-console/cloud/overview/topics/mc-management-console.html)  
+* Various IAM roles, policies and instance profiles for configuring fine-grain permission for  [cloud storage access](https://docs.cloudera.com/cdp-public-cloud/cloud/requirements-aws/topics/mc-idbroker-minimum-setup.html)  and AWS compute services.
+* An AWS S3 bucket with three default locations for storing data, table metadata, logs and audit.
+
+### Configure local prerequisites
+
+1. You will need to configure your AWS credentials locally so that Terraform can find them. Examples are shown in  [Build Infrastructure | Terraform | HashiCorp Developer](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-build)  on how to configure the required environment variables.
+2. If you have not yet configured your ~/.cdp/credentials file, follow the steps for  [Generating an API access key](https://docs.cloudera.com/cdp-public-cloud/cloud/cli/topics/mc-cli-generating-an-api-access-key.html)  and  [Configuring CDP client](https://docs.cloudera.com/cdp-public-cloud/cloud/cli/topics/mc-configuring-cdp-client-with-the-api-access-key.html)
+3. To install Terraform follow the official  [Install Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)  guide from Hashicorp.
+
+### Create infrastructure
+
+1. Clone this repository using the following commands:
+git clone https://github.com/aws-ia/terraform-cloudera-cdp.git  
+2. Choose one of the deployment types in the  [examples](https://github.com/aws-ia/terraform-cloudera-cdp/examples)  directory and change to this directory.
+cd terraform-cloudera-cdp/examples/ex[deployment_type]
+3 .Create a terraform.tfvars file with variable definitions to run the module. Reference/copy the terraform.tfvars.sample file in each example folder to create this file.
+4. Run the Terraform module for the chosen deployment type:
+terraform init
+terraform apply
+5. Once the creation of the CDP environment and data lake starts you can follow the deployment process on the CDP Management Console ( [https://cdp.cloudera.com/](https://cdp.cloudera.com/) ). Once it completes, you can add CDP  [Data Hubs and Data Services](https://docs.cloudera.com/cdp-public-cloud/cloud/overview/topics/cdp-services.html)  to your newly deployed environment from the Management Console UI or using the CLI.
+
+
+### Clean up the infrastructure
+
+
+
 1. Clone this repository using the following commands:
 
 ```bash
