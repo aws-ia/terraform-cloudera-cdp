@@ -1,25 +1,39 @@
 <!-- BEGIN_TF_DOCS -->
 # Terraform Module for CDP Prerequisites
 
-This module contains resource files and example variable definition files for creation of the pre-requisite Cloud resources on AWS and optional deployment of Cloudera Data Platform (CDP) Public Cloud.
+This module automates the deployment of Cloudera Data Platform (CDP) Public Cloud on AWS Cloud. It contains resource files and example variable definition files for both the creation of the prerequisite AWS resources and setting up of CDP service.
 
-## Usage
+You can read more about [CDP Public Cloud](https://docs.cloudera.com/cdp-public-cloud/cloud/overview/topics/cdp-public-cloud.html) or [Creating and managing CDP deployments](https://docs.cloudera.com/cdp-public-cloud/cloud/getting-started/topics/cdp-creating_and_managing_cdp_deployments.html#cdp_creating_and_managing_cdp_deployments) in the Cloudera documentation.
 
-The [examples](./examples) directory has example AWS Cloud Service Provider deployments for different scenarios:
+This repository provider a module that allows you to perform the following:
+* Create AWS networking resources required by a CDP deployment following the reference  [network architectures](https://docs.cloudera.com/cdp-public-cloud/cloud/aws-refarch/topics/cdp-pc-aws-refarch-taxonomy.html)  or
+* Deploy CDP in an existing VPC by specifying target subnets and security groups.
+* Create or import S3 buckets for CDP to store data, logs, audit and metadata
+* Define a cross-account policy and role that your CDP tenant can use to interact with your AWS Cloud account
+* Deploy the core services of CDP (environment and data lake service) and the required configuration (credential, default locations, storage access permissions).
 
-* `ex01-minimal-inputs` uses the minimum set of inputs for the module.
-
-* `ex02-existing-vpc` creates a VPC and subnets outside of the module and passes this as an additional input. CDP deployment then uses these network assets.
-
-* `ex03-create-keypair` creates the AWS EC2 Keypair in the module caller and passes this as an additional input.
-
-* TODO: `ex04-all_inputs_specified` contains an example with all input parameters for the module.
+This module give you flexibility by allowing a high degree of customization. The [examples](./examples) directory has example AWS Cloud deployments for different scenarios:
+* `ex01-minimal-inputs` uses the minimum set of inputs for the module. This can be used to quickly set up a reference deployment of CDP in a newly created, empty AWS account with access over the internet. This option is ideal for getting started with CDP.
+* `ex02-existing-vpc` creates a VPC and subnets outside of the module and passes this as an additional input. CDP deployment then uses these network assets rather than creating new ones.
+* `ex03-all_inputs_specified` contains an example with all input parameters for the module.
 
 In each directory an example `terraform.tfvars.sample` values file is included to show input variable values.
 
+## Prerequisites
+
+To use the module provided here, you will need the following prerequisites:
+
+* An AWS account (for evaluation purposes, we recommend using a dedicated AWS account for CDP)
+* A CDP Public Cloud account (you can sign up for a  [60-day free pilot](https://www.cloudera.com/campaign/try-cdp-public-cloud.html) )
+* A recent version of Terraform software (version 0.13 or higher)
+
+## Authors and Contributors
+
+Battulga Purevragchaa (AWS), Nidhi Gupta (AWS), Jim Enright (Cloudera), Webster Mudge (Cloudera), Adrian Castello (Cloudera), Balazs Gaspar (Cloudera)
+
 ## Deployment
 
-### Create infrastructure
+### Architecture
 
 1. Clone this repository using the following commands:
 
