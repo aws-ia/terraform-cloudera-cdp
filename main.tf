@@ -133,6 +133,36 @@ resource "aws_s3_bucket_public_access_block" "cdp_storage_locations" {
 
 }
 
+resource "aws_kms_key" "cdp_kms_key" {
+
+  count = var.create_kms ? 1 : 0
+
+  description         = "KMS key for Bucket Encryption of ${var.env_prefix} CDP environment"
+  enable_key_rotation = "true"
+}
+
+resource "aws_kms_alias" "cdp_kms_alias" {
+
+  count = var.create_kms ? 1 : 0
+
+  name          = "alias/${var.env_prefix}"
+  target_key_id = aws_kms_key.cdp_kms_key[0].key_id
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cdp_storage_location_kms" {
+
+  for_each = var.create_kms ? aws_s3_bucket.cdp_storage_locations : {}
+
+  bucket = each.value.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.cdp_kms_key[0].arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 # ------- AWS Buckets directory structures -------
 # Data Storage Objects
 resource "aws_s3_object" "cdp_data_storage_object" {

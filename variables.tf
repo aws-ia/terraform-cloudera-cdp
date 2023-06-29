@@ -265,6 +265,16 @@ variable "backup_storage" {
   default = null
 }
 
+variable "create_kms" {
+
+  type = bool
+
+  description = "Flag to create AWS KMS for encryption of S3 buckets"
+
+  default = true
+
+}
+
 # ------- Policies -------
 # Cross Account Policy (name and document)
 variable "xaccount_policy_name" {

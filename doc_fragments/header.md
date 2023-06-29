@@ -32,7 +32,7 @@ Battulga Purevragchaa (AWS), Nidhi Gupta (AWS), Jim Enright (Cloudera), Webster 
 
 ## Architecture
 
-![Deployment Architecture](../images/deployment-architecture.png)
+![Deployment Architecture](./images/deployment-architecture.png)
 
 The `ex01-minimal-inputs` example implements a semi-private reference architecture of CDP. This deploys customer workloads to private subnets, but exposes CDP service endpoints, which data consumers can access over a load balancer with a public IP address. Security groups or allow-lists (IP addresses or CIDR) on Load Balancers must be used to restrict access to these public services only to corporate networks as needed. 
 
@@ -40,7 +40,7 @@ A detailed description of this setup is available under the Cloudera  [Public En
 
 The various network flows in this architecture are depicted in the diagram below:
 
-![Network traffic flows](../images/endpoint-access-gateway-network-traffic-flow.png)
+![Network traffic flows](./images/endpoint-access-gateway-network-traffic-flow.png)
 
 The reference architecture for semi-private deployments includes following components:
 * A VPC spanning multiple AWS availability zones of the selected region
