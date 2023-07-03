@@ -44,6 +44,40 @@ variable "aws_key_pair" {
 }
 
 # ------- CDP Environment Deployment -------
+variable "environment_name" {
+  type        = string
+  description = "Name of the CDP environment. Defaults to '<env_prefix>-cdp-env' if not specified."
+
+  default = null
+}
+
+variable "datalake_name" {
+  type        = string
+  description = "Name of the CDP datalake. Defaults to '<env_prefix>-aw-dl' if not specified."
+
+  default = null
+}
+
+variable "cdp_xacccount_credential_name" {
+  type        = string
+  description = "Name of the CDP Cross Account Credential. Defaults to '<env_prefix>-xaccount-cred' if not specified."
+
+  default = null
+}
+
+variable "cdp_admin_group_name" {
+  type        = string
+  description = "Name of the CDP IAM Admin Group associated with the environment. Defaults to '<env_prefix>-cdp-admin-group' if not specified."
+
+  default = null
+}
+
+variable "cdp_user_group_name" {
+  type        = string
+  description = "Name of the CDP IAM User Group associated with the environment. Defaults to '<env_prefix>-cdp-user-group' if not specified."
+
+  default = null
+}
 variable "cdp_profile" {
   type        = string
   description = "Profile for CDP credentials"
@@ -69,13 +103,6 @@ variable "deployment_template" {
     condition     = contains(["public", "semi-private", "private"], var.deployment_template)
     error_message = "Valid values for var: deployment_template are (public, semi-private, private)."
   }
-}
-variable "deploy_cdp" {
-  type = bool
-
-  description = "Deploy the CDP environment as part of Terraform"
-
-  default = true
 }
 
 variable "lookup_cdp_account_ids" {
@@ -131,14 +158,41 @@ variable "datalake_scale" {
 
   description = "The scale of the datalake. Valid values are LIGHT_DUTY, MEDIUM_DUTY_HA."
 
-  # NOTE: Unable to have validation when we want a default behaviour depending on deployment_template
-  # validation {
-  #   condition     = contains(["LIGHT_DUTY", "MEDIUM_DUTY_HA"], var.datalake_scale)
-  #   error_message = "Valid values for var: datalake_scale are (LIGHT_DUTY, MEDIUM_DUTY_HA)."
-  # }
+  validation {
+    condition     = (var.datalake_scale == null ? true : contains(["LIGHT_DUTY", "MEDIUM_DUTY_HA"], var.datalake_scale))
+    error_message = "Valid values for var: datalake_scale are (LIGHT_DUTY, MEDIUM_DUTY_HA)."
+  }
 
   default = null
 }
+
+variable "datalake_version" {
+  type = string
+
+  description = "The Datalake Runtime version. Valid values are semantic versions, e.g. 7.2.16"
+
+  validation {
+    condition     = (var.datalake_version == null ? true : length(regexall("\\d+\\.\\d+.\\d+", var.datalake_version)) > 0)
+    error_message = "Valid values for var: datalake_version must match semantic versioning conventions."
+  }
+
+  default = "7.2.16"
+}
+
+variable "endpoint_access_scheme" {
+  type = string
+
+  description = "The scheme for the workload endpoint gateway. PUBLIC creates an external endpoint that can be accessed over the Internet. PRIVATE which restricts the traffic to be internal to the VPC / Vnet. Relevant in Private Networks."
+
+  validation {
+    condition     = (var.endpoint_access_scheme == null ? true : contains(["PUBLIC", "PRIVATE"], var.endpoint_access_scheme))
+    error_message = "Valid values for var: endpoint_access_scheme are (PUBLIC, PRIVATE)."
+  }
+
+  default = null
+
+}
+
 # ------- Network Resources -------
 variable "create_vpc" {
   type = bool

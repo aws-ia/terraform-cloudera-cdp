@@ -1,6 +1,6 @@
 # CDP environment & DL settings
 output "cdp_env_name" {
-  value = "${var.env_prefix}-cdp-env"
+  value = local.environment_name
 
   description = "CDP environment name"
 }

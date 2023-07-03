@@ -9,11 +9,31 @@ locals {
   caller_account_id = data.aws_caller_identity.current.account_id
 
   # ------- CDP Environment Deployment -------
+  environment_name = coalesce(var.environment_name,
+  "${var.env_prefix}-cdp-env")
+
+  datalake_name = coalesce(var.datalake_name,
+  "${var.env_prefix}-aw-dl")
+
+  cdp_xacccount_credential_name = coalesce(var.cdp_xacccount_credential_name,
+  "${var.env_prefix}-xaccount-cred")
+
+  cdp_admin_group_name = coalesce(var.cdp_admin_group_name,
+  "${var.env_prefix}-cdp-admin-group")
+
+  cdp_user_group_name = coalesce(var.cdp_user_group_name,
+  "${var.env_prefix}-cdp-user-group")
+
   datalake_scale = coalesce(
     var.datalake_scale,
     (var.deployment_template == "public" ?
       "LIGHT_DUTY" : "MEDIUM_DUTY_HA"
     )
+  )
+
+  endpoint_access_scheme = coalesce(
+    var.endpoint_access_scheme,
+    (var.deployment_template == "semi-private") ? "PUBLIC" : "PRIVATE"
   )
 
   # ------- Network Resources -------
@@ -30,6 +50,8 @@ locals {
   private_subnet_ids = (var.create_vpc ?
     module.aws_cdp_vpc[0].private_subnets : var.cdp_private_subnet_ids
   )
+
+  subnets_for_cdp = (var.deployment_template == "public") ? (concat(local.public_subnet_ids, local.private_subnet_ids)) : (local.private_subnet_ids)
 
   # Security Groups
   security_group_default_name = coalesce(var.security_group_default_name, "${var.env_prefix}-default-sg")
@@ -166,9 +188,9 @@ locals {
   # ------- Roles -------
   xaccount_role_name = coalesce(var.xaccount_role_name, "${var.env_prefix}-xaccount-role")
 
-  xaccount_account_id = coalesce(var.xaccount_account_id, var.lookup_cdp_account_ids ? data.external.cdpcli[0].result.account_id : null)
+  xaccount_account_id = coalesce(var.xaccount_account_id, var.lookup_cdp_account_ids ? data.cdp_environments_aws_credential_prerequisites.cdp_prereqs.account_id : null)
 
-  xaccount_external_id = coalesce(var.xaccount_external_id, var.lookup_cdp_account_ids ? data.external.cdpcli[0].result.external_id : null)
+  xaccount_external_id = coalesce(var.xaccount_external_id, var.lookup_cdp_account_ids ? data.cdp_environments_aws_credential_prerequisites.cdp_prereqs.external_id : null)
 
   idbroker_role_name = coalesce(var.idbroker_role_name, "${var.env_prefix}-idbroker-role")
 
