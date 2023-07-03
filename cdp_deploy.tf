@@ -63,7 +63,7 @@ resource "cdp_iam_group" "cdp_user_group" {
 
 # ------- IdBroker Mappings -------
 resource "cdp_environments_id_broker_mappings" "cdp_idbroker" {
-  environment_name = cdp_environments_aws_environment.cdp_env.name
+  environment_name = cdp_environments_aws_environment.cdp_env.environment_name
   environment_crn  = cdp_environments_aws_environment.cdp_env.crn
 
   ranger_audit_role                   = aws_iam_role.cdp_ranger_audit_role.arn
@@ -88,7 +88,7 @@ resource "cdp_environments_id_broker_mappings" "cdp_idbroker" {
 # ------- CDP Datalake -------
 resource "cdp_datalake_aws_datalake" "cdp_datalake" {
   datalake_name           = local.datalake_name
-  environment_name        = cdp_environments_aws_environment.cdp_env.name
+  environment_name        = cdp_environments_aws_environment.cdp_env.environment_name
   instance_profile        = aws_iam_instance_profile.cdp_idbroker_role_instance_profile.arn
   storage_bucket_location = "s3a://${local.data_storage.data_storage_bucket}${local.storage_suffix}/${local.data_storage.data_storage_object}"
 
