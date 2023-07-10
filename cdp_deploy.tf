@@ -43,7 +43,44 @@ resource "cdp_environments_aws_environment" "cdp_env" {
   tags               = local.env_tags
 
   depends_on = [
-    cdp_environments_aws_credential.cdp_cred
+    cdp_environments_aws_credential.cdp_cred,
+    module.aws_cdp_vpc,
+    aws_security_group.cdp_default_sg,
+    aws_security_group.cdp_knox_sg,
+    random_id.bucket_suffix,
+    aws_s3_bucket.cdp_storage_locations,
+    aws_s3_object.cdp_data_storage_object,
+    aws_s3_object.cdp_log_storage_object,
+    aws_iam_policy.cdp_xaccount_policy,
+    data.aws_iam_policy_document.cdp_idbroker_policy_doc,
+    aws_iam_policy.cdp_idbroker_policy,
+    aws_iam_policy.cdp_log_data_access_policy,
+    aws_iam_policy.cdp_ranger_audit_s3_data_access_policy,
+    aws_iam_policy.cdp_datalake_admin_s3_data_access_policy,
+    aws_iam_policy.cdp_bucket_data_access_policy,
+    data.aws_iam_policy_document.cdp_xaccount_role_policy_doc,
+    aws_iam_role.cdp_xaccount_role,
+    aws_iam_role_policy_attachment.cdp_xaccount_role_attach,
+    data.aws_iam_policy_document.cdp_idbroker_role_policy_doc,
+    aws_iam_role.cdp_idbroker_role,
+    aws_iam_instance_profile.cdp_idbroker_role_instance_profile,
+    aws_iam_role_policy_attachment.cdp_idbroker_role_attach1,
+    aws_iam_role_policy_attachment.cdp_idbroker_role_attach2,
+    data.aws_iam_policy_document.cdp_log_role_policy_doc,
+    aws_iam_role.cdp_log_role,
+    aws_iam_instance_profile.cdp_log_role_instance_profile,
+    aws_iam_role_policy_attachment.cdp_log_role_attach1,
+    aws_iam_role_policy_attachment.cdp_log_role_attach2,
+    data.aws_iam_policy_document.cdp_datalake_admin_role_policy_doc,
+    aws_iam_role.cdp_datalake_admin_role,
+    aws_iam_instance_profile.cdp_datalake_admin_role_instance_profile,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach1,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach2,
+    data.aws_iam_policy_document.cdp_ranger_audit_role_policy_doc,
+    aws_iam_role.cdp_ranger_audit_role,
+    aws_iam_instance_profile.cdp_ranger_audit_role_instance_profile,
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach1,
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach2
   ]
 }
 
