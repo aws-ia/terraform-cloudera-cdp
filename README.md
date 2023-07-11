@@ -113,7 +113,7 @@ terraform destroy
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 4.67.0 |
-| <a name="provider_cdp"></a> [cdp](#provider\_cdp) | 0.1.0-rc3 |
+| <a name="provider_cdp"></a> [cdp](#provider\_cdp) | 0.1.2-pre |
 | <a name="provider_http"></a> [http](#provider\_http) | 3.2.1 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
 | <a name="provider_time"></a> [time](#provider\_time) | 0.9.1 |
