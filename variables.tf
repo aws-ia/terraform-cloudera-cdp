@@ -325,7 +325,7 @@ variable "create_kms" {
 
   description = "Flag to create AWS KMS for encryption of S3 buckets"
 
-  default = true
+  default = false
 
 }
 

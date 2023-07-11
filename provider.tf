@@ -4,12 +4,8 @@ terraform {
       source  = "hashicorp/aws"
       version = "4.67.0"
     }
-    # cdp = {
-    #   source  = "cloudera-labs/cdp"
-    #   version = "0.1.1-pre"
-    # }
     cdp = {
-      source  = "cloudera/cdp"
+      source  = "cloudera-labs/cdp"
       version = "0.1.2-pre"
     }
     http = {
@@ -19,6 +15,10 @@ terraform {
     random = {
       source  = "hashicorp/random"
       version = "3.4.3"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.9.1"
     }
   }
 

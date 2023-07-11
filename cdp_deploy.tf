@@ -1,10 +1,18 @@
 # Deployment and creation of CDP resources using CDP Terraform Provider
 
 # ------- CDP Credential -------
+# Wait for propagation of IAM xaccount role
+resource "time_sleep" "iam_propagation" {
+  depends_on      = [aws_iam_role.cdp_xaccount_role]
+  create_duration = "45s"
+}
+
 resource "cdp_environments_aws_credential" "cdp_cred" {
   credential_name = local.cdp_xacccount_credential_name
   role_arn        = aws_iam_role.cdp_xaccount_role.arn
   description     = "AWS Cross Account Credential for AWS env ${local.environment_name}"
+
+  depends_on = [time_sleep.iam_propagation]
 }
 
 # ------- CDP Environment -------
@@ -33,31 +41,41 @@ resource "cdp_environments_aws_environment" "cdp_env" {
   endpoint_access_gateway_scheme     = local.endpoint_access_scheme
   endpoint_access_gateway_subnet_ids = local.public_subnet_ids
 
-  freeipa = {
-    instance_count_by_group = var.freeipa_instances
-    multi_az                = var.multiaz
-  }
+  # freeipa = {
+  #   instance_count_by_group = var.freeipa_instances
+  #   multi_az                = var.multiaz
+  # }
 
   workload_analytics = var.workload_analytics
   enable_tunnel      = var.enable_ccm_tunnel
-  tags               = local.env_tags
+  # tags               = local.env_tags
 
   depends_on = [
     cdp_environments_aws_credential.cdp_cred,
     module.aws_cdp_vpc,
     aws_security_group.cdp_default_sg,
+    aws_security_group_rule.cdp_default_sg_egress,
+    aws_security_group_rule.cdp_default_sg_ingress_self,
     aws_security_group.cdp_knox_sg,
+    aws_security_group_rule.cdp_knox_sg_egress,
+    aws_security_group_rule.cdp_knox_sg_ingress,
+    aws_security_group_rule.cdp_knox_sg_ingress_self,
     random_id.bucket_suffix,
     aws_s3_bucket.cdp_storage_locations,
     aws_s3_object.cdp_data_storage_object,
     aws_s3_object.cdp_log_storage_object,
+    aws_s3_object.cdp_backup_storage_object,
     aws_iam_policy.cdp_xaccount_policy,
     data.aws_iam_policy_document.cdp_idbroker_policy_doc,
     aws_iam_policy.cdp_idbroker_policy,
     aws_iam_policy.cdp_log_data_access_policy,
     aws_iam_policy.cdp_ranger_audit_s3_data_access_policy,
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach3,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach4,
     aws_iam_policy.cdp_datalake_admin_s3_data_access_policy,
     aws_iam_policy.cdp_bucket_data_access_policy,
+    aws_iam_policy.cdp_datalake_restore_policy,
+    aws_iam_policy.cdp_datalake_backup_policy,
     data.aws_iam_policy_document.cdp_xaccount_role_policy_doc,
     aws_iam_role.cdp_xaccount_role,
     aws_iam_role_policy_attachment.cdp_xaccount_role_attach,
@@ -71,8 +89,13 @@ resource "cdp_environments_aws_environment" "cdp_env" {
     aws_iam_instance_profile.cdp_log_role_instance_profile,
     aws_iam_role_policy_attachment.cdp_log_role_attach1,
     aws_iam_role_policy_attachment.cdp_log_role_attach2,
-    data.aws_iam_policy_document.cdp_datalake_admin_role_policy_doc,
+    aws_iam_role_policy_attachment.cdp_log_role_attach3,
     aws_iam_role.cdp_datalake_admin_role,
+    data.aws_iam_policy_document.cdp_datalake_admin_role_policy_doc,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach1,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach2,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach3,
+    aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach4,
     aws_iam_instance_profile.cdp_datalake_admin_role_instance_profile,
     aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach1,
     aws_iam_role_policy_attachment.cdp_datalake_admin_role_attach2,
@@ -80,7 +103,9 @@ resource "cdp_environments_aws_environment" "cdp_env" {
     aws_iam_role.cdp_ranger_audit_role,
     aws_iam_instance_profile.cdp_ranger_audit_role_instance_profile,
     aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach1,
-    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach2
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach2,
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach3,
+    aws_iam_role_policy_attachment.cdp_ranger_audit_role_attach4
   ]
 }
 
@@ -134,10 +159,11 @@ resource "cdp_datalake_aws_datalake" "cdp_datalake" {
   enable_ranger_raz = var.enable_raz
   multi_az          = var.multiaz
 
-  tags = local.env_tags
+  # tags = local.env_tags
 
   depends_on = [
     cdp_environments_aws_environment.cdp_env,
-    cdp_environments_id_broker_mappings.cdp_idbroker
+    cdp_environments_id_broker_mappings.cdp_idbroker,
+    cdp_environments_aws_credential.cdp_cred
   ]
 }

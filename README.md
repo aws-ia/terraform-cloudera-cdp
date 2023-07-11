@@ -106,6 +106,7 @@ terraform destroy
 | <a name="requirement_cdp"></a> [cdp](#requirement\_cdp) | 0.1.2-pre |
 | <a name="requirement_http"></a> [http](#requirement\_http) | 3.2.1 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | 3.4.3 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | 0.9.1 |
 
 ## Providers
 
@@ -115,6 +116,7 @@ terraform destroy
 | <a name="provider_cdp"></a> [cdp](#provider\_cdp) | 0.1.0-rc3 |
 | <a name="provider_http"></a> [http](#provider\_http) | 3.2.1 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.9.1 |
 
 ## Modules
 
@@ -173,13 +175,14 @@ terraform destroy
 | [aws_security_group_rule.cdp_knox_sg_egress](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.cdp_knox_sg_ingress](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.cdp_knox_sg_ingress_self](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
-| [cdp_datalake_aws_datalake.cdp_datalake](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/datalake_aws_datalake) | resource |
-| [cdp_environments_aws_credential.cdp_cred](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/environments_aws_credential) | resource |
-| [cdp_environments_aws_environment.cdp_env](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/environments_aws_environment) | resource |
-| [cdp_environments_id_broker_mappings.cdp_idbroker](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/environments_id_broker_mappings) | resource |
-| [cdp_iam_group.cdp_admin_group](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/iam_group) | resource |
-| [cdp_iam_group.cdp_user_group](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/resources/iam_group) | resource |
+| [cdp_datalake_aws_datalake.cdp_datalake](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/datalake_aws_datalake) | resource |
+| [cdp_environments_aws_credential.cdp_cred](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/environments_aws_credential) | resource |
+| [cdp_environments_aws_environment.cdp_env](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/environments_aws_environment) | resource |
+| [cdp_environments_id_broker_mappings.cdp_idbroker](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/environments_id_broker_mappings) | resource |
+| [cdp_iam_group.cdp_admin_group](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/iam_group) | resource |
+| [cdp_iam_group.cdp_user_group](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/resources/iam_group) | resource |
 | [random_id.bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.4.3/docs/resources/id) | resource |
+| [time_sleep.iam_propagation](https://registry.terraform.io/providers/hashicorp/time/0.9.1/docs/resources/sleep) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.cdp_datalake_admin_role_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.cdp_idbroker_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
@@ -188,7 +191,7 @@ terraform destroy
 | [aws_iam_policy_document.cdp_ranger_audit_role_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.cdp_xaccount_role_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_vpc.cdp_vpc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/vpc) | data source |
-| [cdp_environments_aws_credential_prerequisites.cdp_prereqs](https://registry.terraform.io/providers/cloudera/cdp/0.1.2-pre/docs/data-sources/environments_aws_credential_prerequisites) | data source |
+| [cdp_environments_aws_credential_prerequisites.cdp_prereqs](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.2-pre/docs/data-sources/environments_aws_credential_prerequisites) | data source |
 | [http_http.bucket_access_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
 | [http_http.datalake_admin_s3_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
 | [http_http.datalake_backup_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
@@ -219,7 +222,7 @@ terraform destroy
 | <a name="input_cdp_user_group_name"></a> [cdp\_user\_group\_name](#input\_cdp\_user\_group\_name) | Name of the CDP IAM User Group associated with the environment. Defaults to '<env\_prefix>-cdp-user-group' if not specified. | `string` | `null` | no |
 | <a name="input_cdp_vpc_id"></a> [cdp\_vpc\_id](#input\_cdp\_vpc\_id) | VPC ID for CDP environment. Required if create\_vpc is false. | `string` | `null` | no |
 | <a name="input_cdp_xacccount_credential_name"></a> [cdp\_xacccount\_credential\_name](#input\_cdp\_xacccount\_credential\_name) | Name of the CDP Cross Account Credential. Defaults to '<env\_prefix>-xaccount-cred' if not specified. | `string` | `null` | no |
-| <a name="input_create_kms"></a> [create\_kms](#input\_create\_kms) | Flag to create AWS KMS for encryption of S3 buckets | `bool` | `true` | no |
+| <a name="input_create_kms"></a> [create\_kms](#input\_create\_kms) | Flag to create AWS KMS for encryption of S3 buckets | `bool` | `false` | no |
 | <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Flag to specify if the VPC should be created | `bool` | `true` | no |
 | <a name="input_data_storage"></a> [data\_storage](#input\_data\_storage) | Data storage locations for CDP environment | <pre>object({<br>    data_storage_bucket = string<br>    data_storage_object = string<br>  })</pre> | `null` | no |
 | <a name="input_datalake_admin_role_name"></a> [datalake\_admin\_role\_name](#input\_datalake\_admin\_role\_name) | Datalake Admin role Name | `string` | `null` | no |
