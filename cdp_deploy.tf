@@ -41,10 +41,10 @@ resource "cdp_environments_aws_environment" "cdp_env" {
   endpoint_access_gateway_scheme     = local.endpoint_access_scheme
   endpoint_access_gateway_subnet_ids = local.public_subnet_ids
 
-  # freeipa = {
-  #   instance_count_by_group = var.freeipa_instances
-  #   multi_az                = var.multiaz
-  # }
+  freeipa = {
+    instance_count_by_group = var.freeipa_instances
+    multi_az                = var.multiaz
+  }
 
   workload_analytics = var.workload_analytics
   enable_tunnel      = var.enable_ccm_tunnel
@@ -63,7 +63,7 @@ resource "cdp_environments_aws_environment" "cdp_env" {
     aws_security_group_rule.cdp_knox_sg_ingress_self,
     random_id.bucket_suffix,
     aws_s3_bucket.cdp_storage_locations,
-    aws_s3_object.cdp_data_storage_object,
+    # aws_s3_object.cdp_data_storage_object,
     aws_s3_object.cdp_log_storage_object,
     aws_s3_object.cdp_backup_storage_object,
     aws_s3_bucket_public_access_block.cdp_storage_locations,

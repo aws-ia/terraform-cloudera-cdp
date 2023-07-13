@@ -6,7 +6,7 @@ terraform {
     }
     cdp = {
       source  = "cloudera-labs/cdp"
-      version = "0.1.2-pre"
+      version = "0.1.3-pre"
     }
     http = {
       source  = "hashicorp/http"

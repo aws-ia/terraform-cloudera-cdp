@@ -165,17 +165,17 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdp_storage_locat
 
 # ------- AWS Buckets directory structures -------
 # Data Storage Objects
-resource "aws_s3_object" "cdp_data_storage_object" {
+# resource "aws_s3_object" "cdp_data_storage_object" {
 
-  bucket = "${local.data_storage.data_storage_bucket}${local.storage_suffix}"
+#   bucket = "${local.data_storage.data_storage_bucket}${local.storage_suffix}"
 
-  key          = local.data_storage.data_storage_object
-  content_type = "application/x-directory"
+#   key          = local.data_storage.data_storage_object
+#   content_type = "application/x-directory"
 
-  depends_on = [
-    aws_s3_bucket.cdp_storage_locations
-  ]
-}
+#   depends_on = [
+#     aws_s3_bucket.cdp_storage_locations
+#   ]
+# }
 
 # Log Storage Objects
 resource "aws_s3_object" "cdp_log_storage_object" {
