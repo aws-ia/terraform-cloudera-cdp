@@ -12,9 +12,8 @@ This repository provides a module that allows you to perform the following:
 * Deploy the core services of CDP (environment and data lake service) and the required configuration (credential, default locations, storage access permissions).
 
 This module also gives you the flexibility to choose between a simple reference setup and a high degree of customization. The [examples](./examples) directory has example AWS Cloud deployments for different scenarios:
+
 * `ex01-minimal-inputs` uses the minimum set of inputs for the module. This can be used to quickly set up a reference deployment of CDP in a newly created, empty AWS account with access over the internet. This option is ideal for getting started with CDP.
-* `ex02-existing-vpc` creates a VPC and subnets outside of the module and passes this as an additional input. CDP deployment then uses these network assets rather than creating new ones. This is intended as an example for bringing your existing networking infrastructure and installing CDP inside.
-* `ex03-all_inputs_specified` contains an example with all input parameters for the module.
 
 In each directory an example `terraform.tfvars.sample` values file is included to show input variable values.
 
