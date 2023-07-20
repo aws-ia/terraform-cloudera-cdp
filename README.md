@@ -173,12 +173,12 @@ terraform destroy
 | [aws_security_group_rule.cdp_knox_sg_egress](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.cdp_knox_sg_ingress](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.cdp_knox_sg_ingress_self](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/resources/security_group_rule) | resource |
-| [cdp_datalake_aws_datalake.cdp_datalake](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/datalake_aws_datalake) | resource |
-| [cdp_environments_aws_credential.cdp_cred](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/environments_aws_credential) | resource |
-| [cdp_environments_aws_environment.cdp_env](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/environments_aws_environment) | resource |
-| [cdp_environments_id_broker_mappings.cdp_idbroker](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/environments_id_broker_mappings) | resource |
-| [cdp_iam_group.cdp_admin_group](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/iam_group) | resource |
-| [cdp_iam_group.cdp_user_group](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/resources/iam_group) | resource |
+| [cdp_datalake_aws_datalake.cdp_datalake](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/datalake_aws_datalake) | resource |
+| [cdp_environments_aws_credential.cdp_cred](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/environments_aws_credential) | resource |
+| [cdp_environments_aws_environment.cdp_env](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/environments_aws_environment) | resource |
+| [cdp_environments_id_broker_mappings.cdp_idbroker](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/environments_id_broker_mappings) | resource |
+| [cdp_iam_group.cdp_admin_group](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/iam_group) | resource |
+| [cdp_iam_group.cdp_user_group](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/resources/iam_group) | resource |
 | [random_id.bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.4.3/docs/resources/id) | resource |
 | [time_sleep.iam_propagation](https://registry.terraform.io/providers/hashicorp/time/0.9.1/docs/resources/sleep) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/caller_identity) | data source |
@@ -189,7 +189,7 @@ terraform destroy
 | [aws_iam_policy_document.cdp_ranger_audit_role_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.cdp_xaccount_role_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_vpc.cdp_vpc](https://registry.terraform.io/providers/hashicorp/aws/4.67.0/docs/data-sources/vpc) | data source |
-| [cdp_environments_aws_credential_prerequisites.cdp_prereqs](https://registry.terraform.io/providers/cloudera-labs/cdp/0.1.3-pre/docs/data-sources/environments_aws_credential_prerequisites) | data source |
+| [cdp_environments_aws_credential_prerequisites.cdp_prereqs](https://registry.terraform.io/providers/cloudera/cdp/0.1.3-pre/docs/data-sources/environments_aws_credential_prerequisites) | data source |
 | [http_http.bucket_access_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
 | [http_http.datalake_admin_s3_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
 | [http_http.datalake_backup_policy_doc](https://registry.terraform.io/providers/hashicorp/http/3.2.1/docs/data-sources/http) | data source |
