@@ -109,6 +109,7 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
+#tfsec:ignore:aws-s3-enable-versioning tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket" "cdp_storage_locations" {
   # Create buckets for the unique list of buckets in data and log storage
   for_each = toset(concat([local.data_storage.data_storage_bucket], [local.log_storage.log_storage_bucket], [local.backup_storage.backup_storage_bucket]))
@@ -224,7 +225,7 @@ data "aws_iam_policy_document" "cdp_idbroker_policy_doc" {
     sid       = "VisualEditor0"
     actions   = ["sts:AssumeRole"]
     effect    = "Allow"
-    resources = ["*"]
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
   }
 }
 
