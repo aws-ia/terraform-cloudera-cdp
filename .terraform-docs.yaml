@@ -1,5 +1,5 @@
 formatter: markdown
-header-from: doc_fragments/header.md
+header-from: .header.md
 settings:
   anchor: true
   color: true
