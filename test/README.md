@@ -31,7 +31,7 @@ Additionally, environment variables can be set for authentication to AWS Account
 | `CDP_PROFILE`          | Profile for CDP credentials. _Note_ if this variable is set then the below two variables are not required. |
 | `CDP_ACCESS_KEY_ID`        | Access key id for the CDP credentials. |
 | `CDP_SECRET_ACCESS_KEY` | Secret access key for the CDP credentials. |
-| **Environment Variables for authentication to CDP** | |
+| **Environment Variables for authentication to AWS** | |
 | `AWS_PROFILE`          | Profile for AWS credentials. _Note_ if this variable is set then the below two variables are not required. |
 | `AWS_ACCESS_KEY_ID`        | Access key id for the CDP credentials. |
 | `AWS_SECRET_ACCESS_KEY` | Secret access key for the CDP credentials. |
