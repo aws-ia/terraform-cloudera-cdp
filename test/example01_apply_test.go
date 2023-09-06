@@ -16,6 +16,13 @@ func TestExample01Apply(t *testing.T) {
 		"ports": []int{443, 22},
 	}
 
+	// Read other inputs from environment variables
+	env_prefix := readInputFromEnvironmentVariable("ENV_PREFIX") // name prefix for cloud and CDP resources
+	aws_region := readInputFromEnvironmentVariable("AWS_REGION") // Cloud Provider region
+	aws_key_pair := readInputFromEnvironmentVariable("AWS_KEY_PAIR") // name of a pre-existing AWS keypair
+	deployment_template := readInputFromEnvironmentVariable("DEPLOYMENT_TEMPLATE") // the deployment pattern Options are public, semi-private or private
+
+	// Read environment variables for Cloud Provider and CDP authentication
 	envVars := setEnvironmentVariables()
 
 	// Make a copy of the terraform module to a temporary directory
@@ -30,12 +37,12 @@ func TestExample01Apply(t *testing.T) {
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
 			//# ------- Global settings -------
-			"env_prefix": "ex01-apply", // name prefix for cloud and CDP resources
-			"aws_region": "eu-west-1", // Cloud Provider region
-			"aws_key_pair": "jenright-keypair", // name of a pre-existing AWS keypair
+			"env_prefix": env_prefix, 
+			"aws_region": aws_region, 
+			"aws_key_pair": aws_key_pair, 
 
 			// # ------- CDP Environment Deployment -------
-			"deployment_template": "public", // the deployment pattern Options are public, semi-private or private
+			"deployment_template": deployment_template, 
 
 			// # ------- Network Settings -------
 			// # any additional CIDRs to add the AWS Security Groups

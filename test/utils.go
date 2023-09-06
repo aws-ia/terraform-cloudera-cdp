@@ -2,7 +2,18 @@ package test
 
 import (
 	"os"
+	"fmt"
 )
+
+func readInputFromEnvironmentVariable(env_var string) (string) {
+
+	if os.Getenv(env_var) == "" {
+		fmt.Println("Required input Environment variable: '" + env_var + "' is not set.")
+		os.Exit(1)
+	}
+	
+	return os.Getenv(env_var)
+}
 
 func setEnvironmentVariables() (map[string]string) {
 
