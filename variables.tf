@@ -1,7 +1,7 @@
 # ------- Global settings -------
 variable "infra_type" {
   type        = string
-  description = "Cloud Provider to deploy CDP."
+  description = "Cloud provider to deploy CDP."
 
   default = "aws"
 
@@ -13,74 +13,74 @@ variable "infra_type" {
 
 variable "aws_region" {
   type        = string
-  description = "Region which Cloud resources will be created"
+  description = "Region which cloud resources are created."
 
   default = null
 }
 
 variable "env_tags" {
   type        = map(any)
-  description = "Tags applied to provised resources"
+  description = "Tags applied to provised resources."
 
   default = null
 }
 
 variable "agent_source_tag" {
   type        = map(any)
-  description = "Tag to identify deployment source"
+  description = "Tag to identify deployment source."
 
   default = { agent_source = "tf-cdp-module" }
 }
 
 variable "env_prefix" {
   type        = string
-  description = "Shorthand name for the environment. Used in resource descriptions"
+  description = "Shorthand name for environment. Used in resource descriptions."
 }
 
 variable "aws_key_pair" {
   type = string
 
-  description = "Name of the Public SSH key for the CDP environment"
+  description = "Public SSH key name for CDP environment."
 }
 
-# ------- CDP Environment Deployment -------
+# ------- CDP environment deployment -------
 variable "environment_name" {
   type        = string
-  description = "Name of the CDP environment. Defaults to '<env_prefix>-cdp-env' if not specified."
+  description = "CDP environment name. Defaults to '<env_prefix>-cdp-env' if not specified."
 
   default = null
 }
 
 variable "datalake_name" {
   type        = string
-  description = "Name of the CDP datalake. Defaults to '<env_prefix>-aw-dl' if not specified."
+  description = "CDP Datalake name. Defaults to '<env_prefix>-aw-dl' if not specified."
 
   default = null
 }
 
 variable "cdp_xacccount_credential_name" {
   type        = string
-  description = "Name of the CDP Cross Account Credential. Defaults to '<env_prefix>-xaccount-cred' if not specified."
+  description = "CDP cross-account credential name. Defaults to '<env_prefix>-xaccount-cred' if not specified."
 
   default = null
 }
 
 variable "cdp_admin_group_name" {
   type        = string
-  description = "Name of the CDP IAM Admin Group associated with the environment. Defaults to '<env_prefix>-cdp-admin-group' if not specified."
+  description = "CDP IAM admin group name associated with environment. Defaults to '<env_prefix>-cdp-admin-group' if not specified."
 
   default = null
 }
 
 variable "cdp_user_group_name" {
   type        = string
-  description = "Name of the CDP IAM User Group associated with the environment. Defaults to '<env_prefix>-cdp-user-group' if not specified."
+  description = "CDP IAM user group name associated with environment. Defaults to '<env_prefix>-cdp-user-group' if not specified."
 
   default = null
 }
 variable "cdp_profile" {
   type        = string
-  description = "Profile for CDP credentials"
+  description = "Profile for CDP credentials."
 
   # Profile is default unless explicitly specified
   default = "default"
@@ -88,7 +88,7 @@ variable "cdp_profile" {
 
 variable "cdp_control_plane_region" {
   type        = string
-  description = "CDP Control Plane Region"
+  description = "CDP control plane region."
 
   # Region is us-west-1 unless explicitly specified
   default = "us-west-1"
@@ -97,7 +97,7 @@ variable "cdp_control_plane_region" {
 variable "deployment_template" {
   type = string
 
-  description = "Deployment Pattern to use for Cloud resources and CDP"
+  description = "Deployment pattern to use for cloud resources and CDP."
 
   validation {
     condition     = contains(["public", "semi-private", "private"], var.deployment_template)
@@ -108,7 +108,7 @@ variable "deployment_template" {
 variable "lookup_cdp_account_ids" {
   type = bool
 
-  description = "Auto lookup CDP Account and External ID using CDP CLI commands. If false then the xaccount_account_id and xaccount_external_id input variables need to be specified"
+  description = "Auto lookup CDP account and external ID using CDP CLI commands. If false, then xaccount_account_id and xaccount_external_id input variables need to be specified."
 
   default = true
 }
@@ -116,7 +116,7 @@ variable "lookup_cdp_account_ids" {
 variable "enable_ccm_tunnel" {
   type = bool
 
-  description = "Flag to enable Cluster Connectivity Manager tunnel. If false then access from Cloud to CDP Control Plane CIDRs is required from via SG ingress"
+  description = "Flag to enable Cluster Connectivity Manager tunnel. If false, then access from cloud to CDP control plane CIDRs is required from SG ingress."
 
   default = true
 }
@@ -124,7 +124,7 @@ variable "enable_ccm_tunnel" {
 variable "enable_raz" {
   type = bool
 
-  description = "Flag to enable Ranger Authorization Service (RAZ)"
+  description = "Flag to enable Ranger Authorization Service (RAZ)."
 
   default = true
 }
@@ -132,7 +132,7 @@ variable "enable_raz" {
 variable "multiaz" {
   type = bool
 
-  description = "Flag to specify that the FreeIPA and DataLake instances will be deployed across multi-availability zones"
+  description = "Flag to specify that the FreeIPA and DataLake instances is deployed across multi-AZ."
 
   default = true
 }
@@ -140,7 +140,7 @@ variable "multiaz" {
 variable "freeipa_instances" {
   type = number
 
-  description = "The number of FreeIPA instances to create in the environment"
+  description = "Number of FreeIPA instances to create in environment."
 
   default = 3
 }
@@ -148,7 +148,7 @@ variable "freeipa_instances" {
 variable "workload_analytics" {
   type = bool
 
-  description = "Flag to specify if workload analytics should be enabled for the CDP environment"
+  description = "Flag to specify if workload analytics is enabled for CDP environment."
 
   default = true
 }
@@ -156,7 +156,7 @@ variable "workload_analytics" {
 variable "datalake_scale" {
   type = string
 
-  description = "The scale of the datalake. Valid values are LIGHT_DUTY, MEDIUM_DUTY_HA."
+  description = "Scale of the Datalake. Valid values are LIGHT_DUTY, MEDIUM_DUTY_HA."
 
   validation {
     condition     = (var.datalake_scale == null ? true : contains(["LIGHT_DUTY", "MEDIUM_DUTY_HA"], var.datalake_scale))
@@ -169,7 +169,7 @@ variable "datalake_scale" {
 variable "datalake_version" {
   type = string
 
-  description = "The Datalake Runtime version. Valid values are semantic versions, e.g. 7.2.16"
+  description = "Datalake runtime version. Valid values are semantic versions (example, 7.2.16)."
 
   validation {
     condition     = (var.datalake_version == null ? true : length(regexall("\\d+\\.\\d+.\\d+", var.datalake_version)) > 0)
@@ -182,7 +182,7 @@ variable "datalake_version" {
 variable "endpoint_access_scheme" {
   type = string
 
-  description = "The scheme for the workload endpoint gateway. PUBLIC creates an external endpoint that can be accessed over the Internet. PRIVATE which restricts the traffic to be internal to the VPC / Vnet. Relevant in Private Networks."
+  description = "Workload endpoint gateway scheme. PUBLIC creates an external endpoint accessed over the internet. PRIVATE restricts traffic to be internal to VPC/Vnet. Relevant in private networks."
 
   validation {
     condition     = (var.endpoint_access_scheme == null ? true : contains(["PUBLIC", "PRIVATE"], var.endpoint_access_scheme))
@@ -193,18 +193,18 @@ variable "endpoint_access_scheme" {
 
 }
 
-# ------- Network Resources -------
+# ------- Network resources -------
 variable "create_vpc" {
   type = bool
 
-  description = "Flag to specify if the VPC should be created"
+  description = "Flag if VPC should be created."
 
   default = true
 }
 
 variable "vpc_cidr" {
   type        = string
-  description = "VPC CIDR Block"
+  description = "VPC CIDR block."
 
   default = "10.10.0.0/16"
 }
@@ -218,14 +218,14 @@ variable "cdp_vpc_id" {
 
 variable "cdp_public_subnet_ids" {
   type        = list(any)
-  description = "List of public subnet ids. Required if create_vpc is false."
+  description = "List of public subnet IDs. Required if create_vpc is false."
 
   default = null
 }
 
 variable "cdp_private_subnet_ids" {
   type        = list(any)
-  description = "List of private subnet ids. Required if create_vpc is false."
+  description = "List of private subnet IDs. Required if create_vpc is false."
 
   default = null
 }
@@ -234,7 +234,7 @@ variable "cdp_private_subnet_ids" {
 variable "security_group_default_name" {
   type = string
 
-  description = "Default Security Group for CDP environment"
+  description = "Default security group for CDP environment."
 
   default = null
 }
@@ -242,7 +242,7 @@ variable "security_group_default_name" {
 variable "security_group_knox_name" {
   type = string
 
-  description = "Knox Security Group for CDP environment"
+  description = "Knox security group for CDP environment."
 
   default = null
 }
@@ -252,7 +252,7 @@ variable "ingress_extra_cidrs_and_ports" {
     cidrs = list(string)
     ports = list(number)
   })
-  description = "List of extra CIDR blocks and ports to include in Security Group Ingress rules"
+  description = "List of extra CIDR blocks and ports to include in security group ingress rules."
 
   default = {
     cidrs = [],
@@ -263,7 +263,7 @@ variable "ingress_extra_cidrs_and_ports" {
 variable "cdp_default_sg_egress_cidrs" {
   type = list(string)
 
-  description = "List of egress CIDR blocks for CDP Default Security Group Egress rule"
+  description = "Egress CIDR blocks list for CDP default security group egress rule."
 
   default = ["0.0.0.0/0"]
 }
@@ -271,7 +271,7 @@ variable "cdp_default_sg_egress_cidrs" {
 variable "cdp_knox_sg_egress_cidrs" {
   type = list(string)
 
-  description = "List of egress CIDR blocks for CDP Knox Security Group Egress rule"
+  description = "Egress CIDR blocks list for CDP knox security group egress rule."
 
   default = ["0.0.0.0/0"]
 }
@@ -280,7 +280,7 @@ variable "cdp_knox_sg_egress_cidrs" {
 variable "random_id_for_bucket" {
   type = bool
 
-  description = "Create a random suffix for the bucket names"
+  description = "Create random suffix for bucket names."
 
   default = true
 
@@ -292,7 +292,7 @@ variable "data_storage" {
     data_storage_object = string
   })
 
-  description = "Data storage locations for CDP environment"
+  description = "Data storage locations for CDP environment."
 
   default = null
 }
@@ -303,7 +303,7 @@ variable "log_storage" {
     log_storage_object = string
   })
 
-  description = "Optional log locations for CDP environment. If not provided follow the data_storage variable"
+  description = "Optional log locations for CDP environment. If not provided follow data_storage variable."
 
   default = null
 }
@@ -314,7 +314,7 @@ variable "backup_storage" {
     backup_storage_object = string
   })
 
-  description = "Optional Backup location for CDP environment. If not provided follow the data_storage variable"
+  description = "Optional backup location for CDP environment. If not provided follow data_storage variable."
 
   default = null
 }
@@ -323,7 +323,7 @@ variable "create_kms" {
 
   type = bool
 
-  description = "Flag to create AWS KMS for encryption of S3 buckets"
+  description = "Flag to create AWS KMS for S3 buckets encryption."
 
   default = false
 
@@ -333,14 +333,14 @@ variable "create_kms" {
 # Cross Account Policy (name and document)
 variable "xaccount_policy_name" {
   type        = string
-  description = "Cross Account Policy name"
+  description = "Cross-account policy name."
 
   default = null
 }
 
 variable "xaccount_account_policy_doc" {
   type        = string
-  description = "Location of cross acount policy document"
+  description = "Cross-acount policy document location."
 
   default = null
 }
@@ -348,7 +348,7 @@ variable "xaccount_account_policy_doc" {
 # CDP IDBroker Assume Role policy
 variable "idbroker_policy_name" {
   type        = string
-  description = "IDBroker Policy name"
+  description = "IDBroker policy name."
 
   default = null
 }
@@ -356,14 +356,14 @@ variable "idbroker_policy_name" {
 # CDP Data Access Policies - Log
 variable "log_data_access_policy_name" {
   type        = string
-  description = "Log Data Access Policy Name"
+  description = "Log data access policy name."
 
   default = null
 }
 
 variable "log_data_access_policy_doc" {
   type        = string
-  description = "Location or Contents of Log Data Access Policy"
+  description = "Location or contents of log data access policy."
 
   default = null
 }
@@ -371,14 +371,14 @@ variable "log_data_access_policy_doc" {
 # CDP Data Access Policies - ranger_audit_s3
 variable "ranger_audit_s3_policy_name" {
   type        = string
-  description = "Ranger S3 Audit Data Access Policy Name"
+  description = "Ranger S3 audit data access policy name."
 
   default = null
 }
 
 variable "ranger_audit_s3_policy_doc" {
   type        = string
-  description = "Location or Contents of Ranger S3 Audit Data Access Policy"
+  description = "Location or contents of Ranger S3 audit data access policy."
 
   default = null
 }
@@ -386,28 +386,28 @@ variable "ranger_audit_s3_policy_doc" {
 # CDP Data Access Policies - datalake_admin_s3 
 variable "datalake_admin_s3_policy_name" {
   type        = string
-  description = "Datalake Admin S3 Data Access Policy Name"
+  description = "Datalake admin S3 data access policy name."
 
   default = null
 }
 
 variable "datalake_admin_s3_policy_doc" {
   type        = string
-  description = "Location or Contents of Datalake Admin S3 Data Access Policy"
+  description = "Location or contents of Datalake admin S3 data access policy."
 
   default = null
 }
 
 variable "datalake_backup_policy_doc" {
   type        = string
-  description = "Location of Datalake Backup Data Access Policy"
+  description = "Datalake backup data access policy location."
 
   default = null
 }
 
 variable "datalake_restore_policy_doc" {
   type        = string
-  description = "Location of Datalake Restore Data Access Policy"
+  description = "Datalake restore data access policy location."
 
   default = null
 }
@@ -415,7 +415,7 @@ variable "datalake_restore_policy_doc" {
 # CDP Data Access Policies - bucket_access
 variable "bucket_access_policy_name" {
   type        = string
-  description = "Bucket Access Data Access Policy Name"
+  description = "Bucket access data access policy name."
 
   default = null
 }
@@ -423,7 +423,7 @@ variable "bucket_access_policy_name" {
 # CDP Datalake restore Policies - datalake
 variable "datalake_restore_policy_name" {
   type        = string
-  description = "Datalake restore Data Access Policy Name"
+  description = "Datalake restore data access policy name."
 
   default = null
 }
@@ -431,14 +431,14 @@ variable "datalake_restore_policy_name" {
 # CDP Datalake backup Policies - datalake
 variable "datalake_backup_policy_name" {
   type        = string
-  description = "Datalake backup Data Access Policy Name"
+  description = "Datalake backup data access policy name."
 
   default = null
 }
 
 variable "bucket_access_policy_doc" {
   type        = string
-  description = "Bucket Access Data Access Policy"
+  description = "Bucket access data access policy."
 
   default = null
 }
@@ -447,21 +447,21 @@ variable "bucket_access_policy_doc" {
 # Cross Account Role (name and id)
 variable "xaccount_role_name" {
   type        = string
-  description = "Cross account Assume role Name"
+  description = "Cross-account assume role name."
 
   default = null
 }
 
 variable "xaccount_account_id" {
   type        = string
-  description = "Account ID of the cross account"
+  description = "Cross-account account ID."
 
   default = null
 }
 
 variable "xaccount_external_id" {
   type        = string
-  description = "External ID of the cross account"
+  description = "Cross-account external ID."
 
   default = null
 }
@@ -469,7 +469,7 @@ variable "xaccount_external_id" {
 # IDBroker service role
 variable "idbroker_role_name" {
   type        = string
-  description = "IDBroker service role Name"
+  description = "IDBroker service role name."
 
   default = null
 }
@@ -477,7 +477,7 @@ variable "idbroker_role_name" {
 # Log service role
 variable "log_role_name" {
   type        = string
-  description = "Log service role Name"
+  description = "Log service role name."
 
   default = null
 }
@@ -485,7 +485,7 @@ variable "log_role_name" {
 # CDP Datalake Admin role
 variable "datalake_admin_role_name" {
   type        = string
-  description = "Datalake Admin role Name"
+  description = "Datalake admin role name."
 
   default = null
 }
@@ -493,7 +493,7 @@ variable "datalake_admin_role_name" {
 # CDP Ranger Audit role
 variable "ranger_audit_role_name" {
   type        = string
-  description = "Ranger Audit role Name"
+  description = "Ranger audit role name."
 
   default = null
 }

@@ -1,7 +1,7 @@
 # Find the AWS account details
 data "aws_caller_identity" "current" {}
 
-# Find details of the AWS vpc
+# Find details of the AWS VPC
 data "aws_vpc" "cdp_vpc" {
   id = local.vpc_id
 }
@@ -42,5 +42,5 @@ data "http" "datalake_restore_policy_doc" {
   url = "https://raw.githubusercontent.com/hortonworks/cloudbreak/master/cloud-aws-cloudformation/src/main/resources/definitions/aws-datalake-restore-policy.json"
 }
 
-# Lookup the CDP control plane account and external ids
+# Lookup the CDP control plane account and external IDs
 data "cdp_environments_aws_credential_prerequisites" "cdp_prereqs" {}

@@ -8,7 +8,7 @@ locals {
 
   caller_account_id = data.aws_caller_identity.current.account_id
 
-  # ------- CDP Environment Deployment -------
+  # ------- CDP environment deployment -------
   environment_name = coalesce(var.environment_name,
   "${var.env_prefix}-cdp-env")
 
@@ -36,7 +36,7 @@ locals {
     (var.deployment_template == "semi-private") ? "PUBLIC" : "PRIVATE"
   )
 
-  # ------- Network Resources -------
+  # ------- Network resources -------
   vpc_id = (var.create_vpc ?
   module.aws_cdp_vpc[0].vpc_id : var.cdp_vpc_id)
 
@@ -53,7 +53,7 @@ locals {
 
   subnets_for_cdp = (var.deployment_template == "public") ? (concat(local.public_subnet_ids, local.private_subnet_ids)) : (local.private_subnet_ids)
 
-  # Security Groups
+  # Security groups
   security_group_default_name = coalesce(var.security_group_default_name, "${var.env_prefix}-default-sg")
 
   security_group_knox_name = coalesce(var.security_group_knox_name, "${var.env_prefix}-knox-sg")
@@ -76,7 +76,7 @@ locals {
     }
   ]
 
-  # ------- Storage Resources -------
+  # ------- Storage resources -------
   storage_suffix = var.random_id_for_bucket ? "-${one(random_id.bucket_suffix).hex}" : ""
 
   data_storage = {
@@ -100,7 +100,7 @@ locals {
 
   xaccount_account_policy_doc = coalesce(var.xaccount_account_policy_doc, data.http.xaccount_account_policy_doc.response_body)
 
-  # CDP IDBroker Assume Role policy
+  # CDP IDBroker Assume Role Policy
   idbroker_policy_name = coalesce(var.idbroker_policy_name, "${var.env_prefix}-idbroker-policy")
 
   # CDP Data Access Policies - Log
@@ -159,7 +159,7 @@ locals {
   # ...then assign either input or downloaded policy doc to var used in resource
   bucket_access_policy_doc = coalesce(var.bucket_access_policy_doc, local.bucket_access_policy_doc_processed)
 
-  # CDP Datalake backup Policy
+  # CDP Datalake Backup Policy
   datalake_backup_policy_name = coalesce(var.datalake_backup_policy_name, "${var.env_prefix}-datalake-backup-policy")
 
   # datalake_backup_policy_doc
@@ -172,7 +172,7 @@ locals {
   # ...then assign either input or downloaded policy doc to var used in resource
   datalake_backup_policy_doc = coalesce(var.datalake_backup_policy_doc, local.datalake_backup_policy_doc_processed)
 
-  # CDP Datalake restore Policy
+  # CDP Datalake Restore Policy
   datalake_restore_policy_name = coalesce(var.datalake_restore_policy_name, "${var.env_prefix}-datalake-restore-policy")
 
   # datalake_restore_policy_doc

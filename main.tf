@@ -13,7 +13,7 @@ module "aws_cdp_vpc" {
 
 }
 
-# ------- Security Groups -------
+# ------- Security groups -------
 # Default SG
 resource "aws_security_group" "cdp_default_sg" {
   vpc_id      = local.vpc_id
@@ -37,7 +37,7 @@ resource "aws_security_group_rule" "cdp_default_sg_ingress_self" {
 resource "aws_security_group_rule" "cdp_default_sg_ingress" {
   count = length(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))
 
-  description       = "Ingress rules for Default CDP Security Group"
+  description       = "Ingress rules for default CDP security group."
   security_group_id = aws_security_group.cdp_default_sg.id
   type              = "ingress"
   cidr_blocks       = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].cidr
@@ -49,7 +49,7 @@ resource "aws_security_group_rule" "cdp_default_sg_ingress" {
 # Terraform removes the default ALLOW ALL egress. Let's recreate this
 resource "aws_security_group_rule" "cdp_default_sg_egress" {
 
-  description       = "Egress rule for Default CDP Security Group"
+  description       = "Egress rule for default CDP security group."
   security_group_id = aws_security_group.cdp_default_sg.id
   type              = "egress"
   cidr_blocks       = var.cdp_default_sg_egress_cidrs #tfsec:ignore:aws-ec2-no-public-egress-sgr #tfsec:ignore:aws-vpc-no-public-egress-sgr
@@ -72,7 +72,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_ingress_self" {
   type              = "ingress"
   from_port         = 0
   to_port           = 0
-  description       = "Self-reference ingress rule"
+  description       = "Self-reference ingress rule."
   protocol          = "all"
   self              = true
 }
@@ -81,7 +81,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_ingress_self" {
 resource "aws_security_group_rule" "cdp_knox_sg_ingress" {
   count = length(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))
 
-  description       = "Ingress rule for Knox CDP Security Group"
+  description       = "Ingress rule for Knox CDP security group."
   security_group_id = aws_security_group.cdp_knox_sg.id
   type              = "ingress"
   cidr_blocks       = tolist(concat(local.security_group_rules_ingress, local.security_group_rules_extra_ingress))[count.index].cidr
@@ -93,7 +93,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_ingress" {
 # Terraform removes the default ALLOW ALL egress. Let's recreate this
 resource "aws_security_group_rule" "cdp_knox_sg_egress" {
 
-  description       = "Egress rule for Knox CDP Security Group"
+  description       = "Egress rule for Knox CDP security group."
   security_group_id = aws_security_group.cdp_knox_sg.id
   type              = "egress"
   cidr_blocks       = var.cdp_knox_sg_egress_cidrs #tfsec:ignore:aws-ec2-no-public-egress-sgr #tfsec:ignore:aws-vpc-no-public-egress-sgr
@@ -102,7 +102,7 @@ resource "aws_security_group_rule" "cdp_knox_sg_egress" {
   protocol          = "all"
 }
 
-# ------- S3 Buckets -------
+# ------- S3 buckets -------
 resource "random_id" "bucket_suffix" {
   count = var.random_id_for_bucket ? 1 : 0
 
@@ -138,7 +138,7 @@ resource "aws_kms_key" "cdp_kms_key" {
 
   count = var.create_kms ? 1 : 0
 
-  description         = "KMS key for Bucket Encryption of ${var.env_prefix} CDP environment"
+  description         = "KMS key for bucket encryption of ${var.env_prefix} CDP environment."
   enable_key_rotation = "true"
 }
 
@@ -164,8 +164,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdp_storage_locat
   }
 }
 
-# ------- AWS Buckets directory structures -------
-# Data Storage Objects
+# ------- AWS buckets directory structures -------
+# Data storage objects
 # resource "aws_s3_object" "cdp_data_storage_object" {
 
 #   bucket = "${local.data_storage.data_storage_bucket}${local.storage_suffix}"
@@ -178,7 +178,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdp_storage_locat
 #   ]
 # }
 
-# Log Storage Objects
+# Log storage objects
 resource "aws_s3_object" "cdp_log_storage_object" {
 
   bucket = "${local.log_storage.log_storage_bucket}${local.storage_suffix}"
@@ -191,7 +191,7 @@ resource "aws_s3_object" "cdp_log_storage_object" {
   ]
 }
 
-# Backup Storage Object
+# Backup storage object
 resource "aws_s3_object" "cdp_backup_storage_object" {
 
   bucket = "${local.backup_storage.backup_storage_bucket}${local.storage_suffix}"
@@ -204,19 +204,19 @@ resource "aws_s3_object" "cdp_backup_storage_object" {
   ]
 }
 
-# ------- AWS Cross Account Policy -------
+# ------- AWS Cross-Account Policy -------
 # The policy here is a dict variable so we'll use the variable
 # directly in the aws_iam_policy resource.
 resource "aws_iam_policy" "cdp_xaccount_policy" {
   name        = local.xaccount_policy_name
-  description = "CDP Cross Account policy for ${var.env_prefix}"
+  description = "CDP Cross-Account Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.xaccount_policy_name })
 
   policy = local.xaccount_account_policy_doc
 }
 
-# ------- CDP IDBroker Assume Role policy -------
+# ------- CDP IDBroker Assume Role Policy -------
 # First create the assume role policy document
 data "aws_iam_policy_document" "cdp_idbroker_policy_doc" {
   version = "2012-10-17"
@@ -232,7 +232,7 @@ data "aws_iam_policy_document" "cdp_idbroker_policy_doc" {
 # Then create the policy using the document
 resource "aws_iam_policy" "cdp_idbroker_policy" {
   name        = local.idbroker_policy_name
-  description = "CDP IDBroker Assume Role policy for ${var.env_prefix}"
+  description = "CDP IDBroker Assume Role Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.idbroker_policy_name })
 
@@ -242,7 +242,7 @@ resource "aws_iam_policy" "cdp_idbroker_policy" {
 # ------- CDP Data Access Policies - Log -------
 resource "aws_iam_policy" "cdp_log_data_access_policy" {
   name        = local.log_data_access_policy_name
-  description = "CDP Log Location Access policy for ${var.env_prefix}"
+  description = "CDP Log Location Access Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.log_data_access_policy_name })
 
@@ -253,7 +253,7 @@ resource "aws_iam_policy" "cdp_log_data_access_policy" {
 # ------- CDP Data Access Policies - ranger_audit_s3 -------
 resource "aws_iam_policy" "cdp_ranger_audit_s3_data_access_policy" {
   name        = local.ranger_audit_s3_policy_name
-  description = "CDP Ranger Audit S3 Access policy for ${var.env_prefix}"
+  description = "CDP Ranger Audit S3 Access Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.ranger_audit_s3_policy_name })
 
@@ -263,7 +263,7 @@ resource "aws_iam_policy" "cdp_ranger_audit_s3_data_access_policy" {
 # ------- CDP Data Access Policies - datalake_admin_s3 -------
 resource "aws_iam_policy" "cdp_datalake_admin_s3_data_access_policy" {
   name        = local.datalake_admin_s3_policy_name
-  description = "CDP Datalake Admin S3 Access policy for ${var.env_prefix}"
+  description = "CDP Datalake Admin S3 Access Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.datalake_admin_s3_policy_name })
 
@@ -274,7 +274,7 @@ resource "aws_iam_policy" "cdp_datalake_admin_s3_data_access_policy" {
 # ------- CDP Data Access Policies - bucket_access -------
 resource "aws_iam_policy" "cdp_bucket_data_access_policy" {
   name        = local.bucket_access_policy_name
-  description = "CDP Bucket S3 Access policy for ${var.env_prefix}"
+  description = "CDP Bucket S3 Access Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.bucket_access_policy_name })
 
@@ -284,7 +284,7 @@ resource "aws_iam_policy" "cdp_bucket_data_access_policy" {
 # ------- CDP Data Access Policies - datalake_backup_policy -------
 resource "aws_iam_policy" "cdp_datalake_backup_policy" {
   name        = local.datalake_backup_policy_name
-  description = "CDP Datalake Backup policy for ${var.env_prefix}"
+  description = "CDP Datalake Backup Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.datalake_backup_policy_name })
 
@@ -294,15 +294,15 @@ resource "aws_iam_policy" "cdp_datalake_backup_policy" {
 # ------- CDP Data Access Policies - datalake_restore_policy -------
 resource "aws_iam_policy" "cdp_datalake_restore_policy" {
   name        = local.datalake_restore_policy_name
-  description = "CDP Datalake Restore policy for ${var.env_prefix}"
+  description = "CDP Datalake Restore Policy for ${var.env_prefix}."
 
   tags = merge(local.env_tags, { Name = local.datalake_restore_policy_name })
 
   policy = local.datalake_restore_policy_doc
 }
 
-# ------- Cross Account Role -------
-# First create the assume role policy document
+# ------- Cross-Account Role -------
+# First create the Assume Role Policy document
 data "aws_iam_policy_document" "cdp_xaccount_role_policy_doc" {
   version = "2012-10-17"
 
@@ -327,14 +327,14 @@ data "aws_iam_policy_document" "cdp_xaccount_role_policy_doc" {
 # Create the IAM role that uses the above assume_role_policy document
 resource "aws_iam_role" "cdp_xaccount_role" {
   name        = local.xaccount_role_name
-  description = "CDP Cross Account role for ${var.env_prefix}"
+  description = "CDP Cross-Account role for ${var.env_prefix}."
 
   assume_role_policy = data.aws_iam_policy_document.cdp_xaccount_role_policy_doc.json
 
   tags = merge(local.env_tags, { Name = local.xaccount_role_name })
 }
 
-# Attach AWS Cross Account Policy to Cross Account Role
+# Attach AWS Cross-Account Policy to Cross-Account Role
 resource "aws_iam_role_policy_attachment" "cdp_xaccount_role_attach" {
   role       = aws_iam_role.cdp_xaccount_role.name
   policy_arn = aws_iam_policy.cdp_xaccount_policy.arn
@@ -359,7 +359,7 @@ data "aws_iam_policy_document" "cdp_idbroker_role_policy_doc" {
 # Create the IAM role that uses the above assume_role_policy document
 resource "aws_iam_role" "cdp_idbroker_role" {
   name        = local.idbroker_role_name
-  description = "CDP IDBroker role for ${var.env_prefix}"
+  description = "CDP IDBroker role for ${var.env_prefix}."
 
   assume_role_policy = data.aws_iam_policy_document.cdp_idbroker_role_policy_doc.json
 
@@ -386,7 +386,7 @@ resource "aws_iam_role_policy_attachment" "cdp_idbroker_role_attach2" {
 }
 
 # ------- AWS Service Roles - CDP Log -------
-# First create the Assume role policy document
+# First create the Assume Role Policy document
 data "aws_iam_policy_document" "cdp_log_role_policy_doc" {
   version = "2012-10-17"
 
@@ -404,7 +404,7 @@ data "aws_iam_policy_document" "cdp_log_role_policy_doc" {
 # Create the IAM role that uses the above assume_role_policy document
 resource "aws_iam_role" "cdp_log_role" {
   name        = local.log_role_name
-  description = "CDP Log role for ${var.env_prefix}"
+  description = "CDP Log role for ${var.env_prefix}."
 
   assume_role_policy = data.aws_iam_policy_document.cdp_log_role_policy_doc.json
 
@@ -439,7 +439,7 @@ resource "aws_iam_role_policy_attachment" "cdp_log_role_attach3" {
 }
 
 # ------- AWS Data Access Roles - CDP Datalake Admin -------
-# First create the Assume role policy document
+# First create the Assume Role Policy document
 data "aws_iam_policy_document" "cdp_datalake_admin_role_policy_doc" {
   version = "2012-10-17"
 
@@ -457,7 +457,7 @@ data "aws_iam_policy_document" "cdp_datalake_admin_role_policy_doc" {
 # Create the IAM role that uses the above assume_role_policy document
 resource "aws_iam_role" "cdp_datalake_admin_role" {
   name        = local.datalake_admin_role_name
-  description = "CDP Datalake Admin role for ${var.env_prefix}"
+  description = "CDP Datalake Admin role for ${var.env_prefix}."
 
   assume_role_policy = data.aws_iam_policy_document.cdp_datalake_admin_role_policy_doc.json
 
