@@ -1,4 +1,4 @@
-# Deployment and creation of CDP resources using CDP Terraform Provider
+# Deployment and creation of CDP resources using CDP Terraform provider
 
 # ------- CDP Credential -------
 # Wait for propagation of IAM xaccount role
@@ -15,7 +15,7 @@ resource "cdp_environments_aws_credential" "cdp_cred" {
   depends_on = [time_sleep.iam_propagation]
 }
 
-# ------- CDP Environment -------
+# ------- CDP environment -------
 resource "cdp_environments_aws_environment" "cdp_env" {
   environment_name = local.environment_name
   credential_name  = cdp_environments_aws_credential.cdp_cred.credential_name
@@ -111,21 +111,21 @@ resource "cdp_environments_aws_environment" "cdp_env" {
   ]
 }
 
-# ------- CDP Admin Group -------
+# ------- CDP admin group -------
 # Create group
 resource "cdp_iam_group" "cdp_admin_group" {
   group_name                    = local.cdp_admin_group_name
   sync_membership_on_user_login = false
 }
 
-# ------- CDP User Group -------
+# ------- CDP user group -------
 # Create group
 resource "cdp_iam_group" "cdp_user_group" {
   group_name                    = local.cdp_user_group_name
   sync_membership_on_user_login = false
 }
 
-# ------- IdBroker Mappings -------
+# ------- IdBroker mappings -------
 resource "cdp_environments_id_broker_mappings" "cdp_idbroker" {
   environment_name = cdp_environments_aws_environment.cdp_env.environment_name
   environment_crn  = cdp_environments_aws_environment.cdp_env.crn
