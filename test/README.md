@@ -3,7 +3,7 @@
 ## Overview
 
 This folder contains test cases against the Cloudera CDP Terraform module using the ex01-minimal_inputs example.
-Details of the test cases are shown in the table below.
+Details of the test cases are in the table below.
 
 | Source File | Test Case Name | Description |
 |-------------|----------------|-------------|

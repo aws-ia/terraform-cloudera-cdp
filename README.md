@@ -15,18 +15,18 @@ There is no cost to use this Partner Solution, but you'll be billed for any AWS 
 
 ## Authors and Contributors
 
-Battulga Purevragchaa (AWS), Nidhi Gupta (AWS), Jim Enright (Cloudera), Webster Mudge (Cloudera), Adrian Castello (Cloudera), Balazs Gaspar (Cloudera)
+Battulga Purevragchaa (AWS), Nidhi Gupta (AWS), Jim Enright (Cloudera), Webster Mudge (Cloudera), Adrian Castello (Cloudera), Balazs Gaspar (Cloudera).
 
 ## Architecture
 
 This Partner Solution deploys into a new virtual private cloud (VPC) or into an existing VPC.
 
-![Architecture for CDP Public Cloud on AWS (semi-private setup)](./images/terraform-cloudera-cdp-architecture-diagram.png)
+![Architecture for CDP Public Cloud on AWS (semi-private setup)](https://raw.githubusercontent.com/aws-ia/terraform-cloudera-cdp/main/images/terraform-cloudera-cdp-architecture-diagram.png)
 
 As shown in the diagram, this solution sets up the following:
 
 * A highly available architecture that spans three Availability Zones.
-* A virtual private cloud (VPC) configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.*
+* A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.*
 * In the public subnets:
     * Managed NAT gateways for outbound traffic (one per subnet).*
     * Network Load Balancers for routing external traffic to specific target groups (UI and API endpoints in the private subnets).**
@@ -54,7 +54,7 @@ A detailed description of this setup is available under the Cloudera [Public End
 
 The various network flows in this architecture are depicted in the diagram below:
 
-![Network traffic flows](./images/cdp-public-cloud-semi-private-network-traffic-flow.png)
+![Network traffic flows](https://raw.githubusercontent.com/aws-ia/terraform-cloudera-cdp/main/images/cdp-public-cloud-semi-private-network-traffic-flow.png)
 
 ## Prerequisites
 
@@ -97,14 +97,14 @@ cd examples/ex<deployment_type>/
 
 3. Create a `terraform.tfvars` file with variable definitions to run the module. Reference the `terraform.tfvars.sample` file in each example folder to create this file (or simply rename it and change the values for the input variables).
 
-4. Run the Terraform module for the chosen deployment type:
+4. Run the Terraform module for the chosen deployment type.
 
 ```bash
 terraform init
 terraform apply
 ```
 
-5. Once the creation of the CDP environment and Data Lake starts, you can follow the deployment process on the CDP Management Console from your browser in ([https://cdp.cloudera.com/](https://cdp.cloudera.com/)). After it completes, you can add CDP [Data Hubs and Data Services](https://docs.cloudera.com/cdp-public-cloud/cloud/overview/topics/cdp-services.html) to your newly deployed environment from the Management Console UI or use the CLI.
+5. Once the creation of the CDP environment and Data Lake starts, you can follow the deployment process on the CDP Management Console from your browser in ([https://cdp.cloudera.com/](https://cdp.cloudera.com/)). After it completes, you can add CDP [Data Hubs and Data Services](https://docs.cloudera.com/cdp-public-cloud/cloud/overview/topics/cdp-services.html) to your newly deployed environment from the Management Console UI, or use the CLI.
 
 ### Clean up the infrastructure
 
@@ -116,7 +116,7 @@ terraform destroy
 
 ## Customer responsibility
 
-After you deploy this Partner Solution, confirm that your resources and services are updated and configured–including any required patches—to meet your security and other needs. For more information, refer to the [AWS Shared Responsibility Model](https://aws.amazon.com/compliance/shared-responsibility-model/).
+After you deploy this Partner Solution, confirm that your resources and services are updated and configured—including any required patches—to meet your security and other needs. For more information, refer to the [AWS Shared Responsibility Model](https://aws.amazon.com/compliance/shared-responsibility-model/).
 
 ## Requirements
 
