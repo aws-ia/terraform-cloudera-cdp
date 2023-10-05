@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # CDP Public Cloud Partner Solution on AWS—Terraform module
 
-This Amazon Web Services (AWS) Partner Solution uses a [Terraform module](https://registry.terraform.io/modules/aws-ia/<path>/latest) to deploy the Cloudera Data Platform (CDP) Public Cloud, an integrated analytics and data management platform in the AWS Cloud. CDP offers broad data analytics and artificial intelligence functionality along with improved security of user access and data governance features.
+This Amazon Web Services (AWS) Partner Solution uses a [Terraform module](https://registry.terraform.io/modules/aws-ia/cdp/cloudera/latest) to deploy the [Cloudera Data Platform (CDP)](https://www.cloudera.com/products/cloudera-data-platform.html) Public Cloud, an integrated analytics and data management platform in the AWS Cloud. CDP offers broad data analytics and artificial intelligence functionality along with improved security of user access and data governance features.
 
 For more information, refer to the [CDP Public Cloud documentation](https://docs.cloudera.com/cdp-public-cloud/cloud/overview/topics/cdp-public-cloud.html).
 
